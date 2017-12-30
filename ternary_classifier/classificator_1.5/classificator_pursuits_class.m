@@ -81,8 +81,11 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
             non_classifications = [4];
             noiseless_eye_record = CreateNoiselessEyeRecord(eye_record, non_classifications);
             
+            % Total number of records
+            num_records = length(noiseless_eye_record);
+            
             % Calculate mean of velocities for fixation and saccade
-            [fixation_mean, saccade_mean, ] = CalculateVelocityMeans(noiseless_eye_record);
+            [fixation_mean, saccade_mean] = CalculateVelocityMeans(noiseless_eye_record);
             
             % Calculate standard deviation of velocities for fixation and
             % saccade
@@ -106,135 +109,106 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
             old_saccade_std_dev = 0; 
             old_fixation_std_dev = 0; 
 
-        flag = 1; 
-        counter = 0; 
-        while(flag == 1)
-            counter = counter + 1; 
-            % Begin viterbi algorithm 
+            converged = false; 
+            while(converged == false)
+                % Begin viterbi algorithm 
+                probability_matrix = zeros(2, num_records); 
+                classification_matrix = zeros(2, num_records); 
 
-            probability_matrix = zeros(2, length(noiseless_eye_record)); 
-            classification_matrix = zeros(2, length(noiseless_eye_record)); 
+                % Observation prob as initial prob for the first point
+                pf = PDF_function(abs(noiseless_eye_record(1).xy_velocity_measured_deg), fixation_mean, fixation_std_dev);
+                ps = PDF_function(abs(noiseless_eye_record(1).xy_velocity_measured_deg), saccade_mean, saccade_std_dev);
 
-            %observation prob as initial prob for the first point
-            pf = PDF_function(abs(noiseless_eye_record(1).xy_velocity_measured_deg), fixation_mean, fixation_std_dev);
-            ps = PDF_function(abs(noiseless_eye_record(1).xy_velocity_measured_deg), saccade_mean, saccade_std_dev);
+                % Insert first column probabilities into probability matrix
+                probability_matrix(1,1) = pf / (pf + ps);
+                probability_matrix(2,1) = ps / (pf + ps);
 
-            % Insert first column probabilities into probability matrix
-            probability_matrix(1,1) = pf / (pf + ps);
-            probability_matrix(2,1) = ps / (pf + ps);
+                for col = 2:num_records
+                    % Calculate observation probabilities
+                    pf = PDF_function(abs(noiseless_eye_record(col).xy_velocity_measured_deg), fixation_mean, fixation_std_dev);
+                    ps = PDF_function(abs(noiseless_eye_record(col).xy_velocity_measured_deg), saccade_mean, saccade_std_dev);
+                    observation_fixation = pf/(pf+ps); 
+                    observation_saccade = ps/(pf+ps);
 
-            for col = 2:length(noiseless_eye_record)
-                % Calculate observation probabilities
-                pf = PDF_function(abs(noiseless_eye_record(col).xy_velocity_measured_deg), fixation_mean, fixation_std_dev);
-                ps = PDF_function(abs(noiseless_eye_record(col).xy_velocity_measured_deg), saccade_mean, saccade_std_dev);
-                observation_fixation = pf/(pf+ps); 
-                observation_saccade = ps/(pf+ps);
+                    % Determine the maximum probability of sequence assuming fixation is the current point
+                    fix_fix_prob = probability_matrix(1, col-1) * p_fixation_fixation * observation_fixation; 
+                    sac_fix_prob = probability_matrix(2, col-1) * p_saccade_fixation * observation_fixation;  
+
+                    % Determine the higher probability of each possibility
+                    % assuming fixation is current point
+                    if(fix_fix_prob > sac_fix_prob)
+                       probability_matrix(1, col) = fix_fix_prob;
+                       classification_matrix(1, col) = 1;
+                    else
+                       probability_matrix(1, col) = sac_fix_prob; 
+                       classification_matrix(1, col) = 2;
+                    end
+
+                    % Determine the maximum probability of sequence assuming saccade is the current point
+                    fix_sac_prob = probability_matrix(1, col-1) * p_fixation_saccade * observation_saccade; 
+                    sac_sac_prob =  probability_matrix(2,col-1) * p_saccade_saccade * observation_saccade; 
+
+                    % Determine the higher probability of each possibility
+                    % assuming saccade is current point
+                    if (fix_sac_prob > sac_sac_prob)
+                        probability_matrix(2, col) = fix_sac_prob;
+                        classification_matrix(2, col) = 1; 
+                    else
+                        probability_matrix(2, col) = sac_sac_prob;
+                        classification_matrix(2, col) = 2;
+                    end
+
+                end
+
+                % Determine the final classification
+                final_fixation_probability = probability_matrix(1, num_records);
+                final_saccade_probability = probability_matrix(2, num_records);
+                if (final_fixation_probability > final_saccade_probability)
+                    last_classification = 1;
+                else
+                    last_classification = 2;
+                end
+
+                noiseless_eye_record(num_records).xy_movement_EMD = last_classification;
+
+                % Complete traceback & classification assignments on noiseless 
+                % eye record through classification matrix 
+                classification = last_classification;
+                for classification_index = num_records-1: 1
+                    classification = classification_matrix(classification, classification_index+1); 
+                    noiseless_eye_record(classification_index).xy_movement_EMD = classification;
+                end
                 
-                % Determine the maximum probability of sequence with fixation at current point
-                probability_matrix(1,col) = probability_matrix(1,col-1) * p_fixation_fixation * observation_fixation; 
-                classification_matrix(1,col) = 1; 
-                sac_fix_prob = probability_matrix(2, col-1) * p_saccade_fixation * observation_fixation;  
-                if(sac_fix_prob > probability_matrix(1,col))
-                   probability_matrix(1, col) = sac_fix_prob; 
-                   classification_matrix(1, col) = 2;
-                end
-
-                % determine max prob of sequence with saccade at current point
-                probability_matrix(2,col) = probability_matrix(1, col-1) * p_fixation_saccade * observation_saccade; 
-                classification_matrix(2,col) = 1; 
-                sac_sac_prob =  probability_matrix(2,col-1) * p_saccade_saccade * observation_saccade; 
-                if(sac_sac_prob > probability_matrix(2,col))
-                   probability_matrix(2, col) = sac_sac_prob; 
-                   classification_matrix(2, col) = 2;
-                end
-            end
-
-            temp_assign = 1; 
-            temp_probability = probability_matrix(1,length(noiseless_eye_record));
-            if(probability_matrix(2, length(noiseless_eye_record)) > temp_probability)
-                temp_assign = 2; 
-
-            end
-
-            noiseless_eye_record(length(noiseless_eye_record)).xy_movement_EMD = temp_assign; 
+                % End viterbi algorithm
 
 
-            %complete traceback & assignments through classification matrix 
-            for col = length(noiseless_eye_record)-1 : 1
-                temp_assign = classification_matrix(temp_assign, col+1); 
-                noiseless_eye_record(col).xy_movement_EMD = temp_assign;
-            end
+                % Recalculate mean of velocities for fixations and saccades
+                [fixation_mean, saccade_mean] = CalculateVelocityMeans(noiseless_eye_record);
 
+                % Calculate standard deviation of velocities for fixation and
+                % saccade
+                [fixation_std_dev, saccade_std_dev] = CalculateVelocityStandardDeviation(noiseless_eye_record, fixation_mean, saccade_mean, 0);
 
-            %recalculate totals & sums
-            fixation_counter = 0;
-            saccade_counter = 0;
-            fixation_sum = 0; 
-            saccade_sum = 0; 
+                % Calculate number of transitions between classifications
+                [transition_matrix] = TransitionCounts(noiseless_eye_record);
 
-            % Determine the amount of saccades to fixations for observed
-            % probabilities
-            for i = 1:length(noiseless_eye_record)
-                if (noiseless_eye_record(i).xy_movement_EMD == 2)
-                      % SACCADE
-                      saccade_counter = saccade_counter + 1;
-                      saccade_sum = saccade_sum + abs(noiseless_eye_record(i).xy_velocity_measured_deg); 
-                  else
-                      % FIXATION
-                      fixation_counter = fixation_counter + 1;
-                      fixation_sum = fixation_sum + abs(noiseless_eye_record(i).xy_velocity_measured_deg); 
-                end
-            end
-            
-            % Calculate means
-            fixation_mean = fixation_sum/fixation_counter;  
-            saccade_mean = saccade_sum/saccade_counter;
-            
-            p_saccade_saccade = 0; 
-            p_saccade_fixation = 0; 
-            p_fixation_saccade = 0; 
-            p_fixation_fixation = 0; 
-            total_transitions = 0;
-
-            % Calculate Standard Deviations and transition probabilities
-            for t=1:length(noiseless_eye_record)
-                if(noiseless_eye_record(t).xy_movement_EMD == 1)
-                    fixation_std_dev = fixation_std_dev + (abs(noiseless_eye_record(t).xy_velocity_measured_deg) - fixation_mean)^2; 
-                else 
-                    saccade_std_dev = saccade_std_dev + (abs(noiseless_eye_record(t).xy_velocity_measured_deg) - saccade_mean)^2; 
-                end
-                if(t~=length(noiseless_eye_record))
-                   total_transitions = total_transitions + 1; 
-                   if(noiseless_eye_record(t).xy_movement_EMD == 1)
-                       if(noiseless_eye_record(t+1).xy_movement_EMD == 1)
-                            p_fixation_fixation = p_fixation_fixation + 1; 
-                       else 
-                            p_fixation_saccade = p_fixation_saccade + 1; 
-                       end 
-                   else 
-                        if(noiseless_eye_record(t+1).xy_movement_EMD == 1)
-                            p_saccade_fixation = p_saccade_fixation + 1; 
-                        else 
-                            p_saccade_saccade = p_saccade_saccade + 1;
-                        end
-                   end 
-                end
-            end
-
-            fixation_std_dev = sqrt(fixation_std_dev/fixation_counter); 
-            saccade_std_dev = sqrt(saccade_std_dev/saccade_counter);
-
-            %end viterbi algorithm
-            % check to see if the transition probs, means and stds have converged
-            if(abs(old_p_saccade_saccade - p_saccade_saccade) < EPSILON_S_S)
-                if(abs(old_p_saccade_fixation - p_saccade_fixation) < EPSILON_S_F)
-                    if(abs(old_p_fixation_saccade - p_fixation_saccade) < EPSILON_F_S)
-                        if(abs(old_p_fixation_fixation - p_fixation_fixation) < EPSILON_F_F)
-                            if(abs(old_saccade_mean - saccade_mean) < EPSILON_S_MEAN)
-                                if(abs(old_fixation_mean - fixation_mean) < EPSILON_F_MEAN)
-                                    if(abs(old_saccade_std_dev - saccade_std_dev) < EPSILON_S_SDEV)
-                                        if(abs(old_fixation_std_dev - fixation_std_dev) < EPSILON_F_SDEV)
-                                            flag = 0; 
+                p_fixation_fixation = transition_matrix(1,1); 
+                p_fixation_saccade = transition_matrix(1,2); 
+                p_saccade_fixation = transition_matrix(2,1); 
+                p_saccade_saccade = transition_matrix(2,2); 
+                
+                % Check for convergence of transitional probabilities,
+                % standard deviation and mean
+                if(abs(old_p_saccade_saccade - p_saccade_saccade) < EPSILON_S_S)
+                    if(abs(old_p_saccade_fixation - p_saccade_fixation) < EPSILON_S_F)
+                        if(abs(old_p_fixation_saccade - p_fixation_saccade) < EPSILON_F_S)
+                            if(abs(old_p_fixation_fixation - p_fixation_fixation) < EPSILON_F_F)
+                                if(abs(old_saccade_mean - saccade_mean) < EPSILON_S_MEAN)
+                                    if(abs(old_fixation_mean - fixation_mean) < EPSILON_F_MEAN)
+                                        if(abs(old_saccade_std_dev - saccade_std_dev) < EPSILON_S_SDEV)
+                                            if(abs(old_fixation_std_dev - fixation_std_dev) < EPSILON_F_SDEV)
+                                                converged = true; 
+                                            end
                                         end
                                     end
                                 end
@@ -242,27 +216,22 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
                         end
                     end
                 end
+
+                old_p_saccade_saccade = p_saccade_saccade; 
+                old_p_saccade_fixation = p_saccade_fixation; 
+                old_p_fixation_saccade = p_fixation_saccade; 
+                old_p_fixation_fixation = p_fixation_fixation; 
+                old_saccade_mean = saccade_mean; 
+                old_fixation_mean = fixation_mean; 
+                old_saccade_std_dev = saccade_std_dev; 
+                old_fixation_std_dev = fixation_std_dev; 
+
             end
 
-            old_p_saccade_saccade = p_saccade_saccade; 
-            old_p_saccade_fixation = p_saccade_fixation; 
-            old_p_fixation_saccade = p_fixation_saccade; 
-            old_p_fixation_fixation = p_fixation_fixation; 
-            old_saccade_mean = saccade_mean; 
-            old_fixation_mean = fixation_mean; 
-            old_saccade_std_dev = saccade_std_dev; 
-            old_fixation_std_dev = fixation_std_dev; 
+            % Put classifications back in eye_record so that noise is accounted for
+            eye_record = UpdateClassifications(noiseless_eye_record, eye_record, non_classifications);
 
-        end
-        % put classifications back in eye_record so that noise is accounted for
-        t2 = 0; 
-        for t = 1:length(eye_record) 
-            if(eye_record(t).xy_movement_EMD ~= 3 && eye_record(t).xy_movement_EMD ~=4)
-               t2 = t2 + 1; 
-               eye_record(t).xy_movement_EMD = noiseless_eye_record(t2).xy_movement_EMD;  
-            end
-        end
-
+        
 %% Implement I-DT of Fixations vs SP
         disp('Beginning I-DT...');
         
