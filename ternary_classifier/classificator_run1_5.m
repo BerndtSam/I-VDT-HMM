@@ -516,48 +516,59 @@ end
                         classificator{i}.convert_from_ETU_to_degrees();
                     end
                     classificator{i}.eye_tracker_data_filter_degree_range();
-                    classificator{i}.classify();
-                    classificator{i}.eye_tracker_data_filter_degree_range();
-                    classificator{i}.merge_fixation_time_interval = MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL;
-                    classificator{i}.merge_fixation_distance = MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE;
-                    classificator{i}.merge_records();
-                    if( MODEL_SETTINGS.FILTER.USE ~= 0)
-                        classificator{i}.minimal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE;
-                        classificator{i}.maximal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE;
-                        classificator{i}.minimal_saccade_length =       MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH;
-                        classificator{i}.unfiltered_saccade_records =   classificator{i}.saccade_records;
-                        classificator{i}.saccade_filtering();
-                        classificator{i}.saccade_records =              classificator{i}.filtered_saccade_records;
-                    end
-                    if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0 || MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
-% Hardcoded parameters for provided input files
-                        scores_computator = scores_computation_class;
-                        scores_computator.read_stimulus_data( MODEL_SETTINGS.READER.INPUT_DATA_NAME, 13, 14, 1, 14);
-                        scores_computator.eye_records = classificator{i}.eye_records;
-                        scores_computator.saccade_records = classificator{i}.saccade_records;
-                        scores_computator.fixation_records = classificator{i}.fixation_records;
-                        scores_computator.noise_records = classificator{i}.noise_records;
-                        scores_computator.pursuit_records = classificator{i}.pursuit_records;
-                        scores_computator.sample_rate = classificator{i}.sample_rate;
-                        scores_computator.delta_t_sec = classificator{i}.delta_t_sec;
-                        
-                        if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0)
-                            scores_computator.draw_graphics(MODEL_SETTINGS.PROCESSING.PLOTS.MODE,method_name{i});
+                    
+                    test_thresholds = true;
+                    % Writing in multiple thresholds
+                    if test_thresholds == true && i == 3
+                        TestThresholds(classificator, MODEL_SETTINGS, i);
+                    else            
+                        classificator{i}.classify();
+                        classificator{i}.eye_tracker_data_filter_degree_range();
+                        classificator{i}.merge_fixation_time_interval = MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL;
+                        classificator{i}.merge_fixation_distance = MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE;
+                        classificator{i}.merge_records();
+                        if( MODEL_SETTINGS.FILTER.USE ~= 0)
+                            classificator{i}.minimal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE;
+                            classificator{i}.maximal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE;
+                            classificator{i}.minimal_saccade_length =       MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH;
+                            classificator{i}.unfiltered_saccade_records =   classificator{i}.saccade_records;
+                            classificator{i}.saccade_filtering();
+                            classificator{i}.saccade_records =              classificator{i}.filtered_saccade_records;
                         end
-                        if( MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
-                            data{ i,1 } = scores_computator.SQnS;
-                            data{ i,2 } = scores_computator.FQnS;
-                            data{ i,3 } = scores_computator.PQnS;
-                            data{ i,4 } = scores_computator.MisFix;
-                            data{ i,5 } = scores_computator.FQlS;
-                            data{ i,6 } = scores_computator.PQlS_P;
-                            data{ i,7 } = scores_computator.PQlS_V;
-                            data{ i,8 } = scores_computator.AFD;
-                            data{ i,9 } = scores_computator.AFN;
-                            data{ i,10} = scores_computator.ASA;
-                            data{ i,11} = scores_computator.ANS;
+                        if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0 || MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
+    % Hardcoded parameters for provided input files
+                            scores_computator = scores_computation_class;
+                            scores_computator.read_stimulus_data( MODEL_SETTINGS.READER.INPUT_DATA_NAME, 13, 14, 1, 14);
+                            scores_computator.eye_records = classificator{i}.eye_records;
+                            scores_computator.saccade_records = classificator{i}.saccade_records;
+                            scores_computator.fixation_records = classificator{i}.fixation_records;
+                            scores_computator.noise_records = classificator{i}.noise_records;
+                            scores_computator.pursuit_records = classificator{i}.pursuit_records;
+                            scores_computator.sample_rate = classificator{i}.sample_rate;
+                            scores_computator.delta_t_sec = classificator{i}.delta_t_sec;
+
+                            if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0)
+                                scores_computator.draw_graphics(MODEL_SETTINGS.PROCESSING.PLOTS.MODE,method_name{i});
+                            end
+                            if( MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
+                                data{ i,1 } = scores_computator.SQnS;
+                                data{ i,2 } = scores_computator.FQnS;
+                                data{ i,3 } = scores_computator.PQnS;
+                                data{ i,4 } = scores_computator.MisFix;
+                                data{ i,5 } = scores_computator.FQlS;
+                                data{ i,6 } = scores_computator.PQlS_P;
+                                data{ i,7 } = scores_computator.PQlS_V;
+                                data{ i,8 } = scores_computator.AFD;
+                                data{ i,9 } = scores_computator.AFN;
+                                data{ i,10} = scores_computator.ASA;
+                                data{ i,11} = scores_computator.ANS;
+                            end
+
+                            % Attempting to gather all scores
+
+
+                            clear scores_computator;
                         end
-                        clear scores_computator;
                     end
 
                     classificator{i}.basename_output_filename =     strcat(MODEL_SETTINGS.OUTPUT.BASENAME_OUTPUT_FILENAME,char(method_str{i}));
@@ -575,6 +586,71 @@ end
 % Switch Classify button back to on
 set( findobj('Tag','Execute_Classification_Button'), 'Enable', 'On');
 % ========== Real execution of classification models  END ===================
+
+function TestThresholds(classificator, MODEL_SETTINGS, i)
+    threshold_scores = [];
+    scores_index = 1;
+    for saccade_threshold=50:250
+        for dispersion_threshold=1:500
+            for duration_threshold=75:300
+                classificator{i}.classify(true, saccade_threshold, double(dispersion_threshold/100), duration_threshold);
+                classificator{i}.eye_tracker_data_filter_degree_range();
+                classificator{i}.merge_fixation_time_interval = MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL;
+                classificator{i}.merge_fixation_distance = MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE;
+                classificator{i}.merge_records();
+                if( MODEL_SETTINGS.FILTER.USE ~= 0)
+                    classificator{i}.minimal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE;
+                    classificator{i}.maximal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE;
+                    classificator{i}.minimal_saccade_length =       MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH;
+                    classificator{i}.unfiltered_saccade_records =   classificator{i}.saccade_records;
+                    classificator{i}.saccade_filtering();
+                    classificator{i}.saccade_records =              classificator{i}.filtered_saccade_records;
+                end
+                if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0 || MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
+% Hardcoded parameters for provided input files
+                    scores_computator = scores_computation_class;
+                    scores_computator.read_stimulus_data( MODEL_SETTINGS.READER.INPUT_DATA_NAME, 13, 14, 1, 14);
+                    scores_computator.eye_records = classificator{i}.eye_records;
+                    scores_computator.saccade_records = classificator{i}.saccade_records;
+                    scores_computator.fixation_records = classificator{i}.fixation_records;
+                    scores_computator.noise_records = classificator{i}.noise_records;
+                    scores_computator.pursuit_records = classificator{i}.pursuit_records;
+                    scores_computator.sample_rate = classificator{i}.sample_rate;
+                    scores_computator.delta_t_sec = classificator{i}.delta_t_sec;
+                end
+%                 if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0)
+%                     scores_computator.draw_graphics(MODEL_SETTINGS.PROCESSING.PLOTS.MODE,method_name{i});
+%                 end
+                if( MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
+%                     data{ i,1 } = scores_computator.SQnS;
+%                     data{ i,2 } = scores_computator.FQnS;
+%                     data{ i,3 } = scores_computator.PQnS;
+%                     data{ i,4 } = scores_computator.MisFix;
+%                     data{ i,5 } = scores_computator.FQlS;
+%                     data{ i,6 } = scores_computator.PQlS_P;
+%                     data{ i,7 } = scores_computator.PQlS_V;
+%                     data{ i,8 } = scores_computator.AFD;
+%                     data{ i,9 } = scores_computator.AFN;
+%                     data{ i,10} = scores_computator.ASA;
+%                     data{ i,11} = scores_computator.ANS;
+                    threshold_scores(scores_index, :) = [double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
+                        double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
+                        double(scores_computator.MisFix) double(scores_computator.FQlS)];
+                    scores_index = scores_index + 1;
+
+                end
+            end
+        end
+    end
+    
+    CalculateIdealScores(threshold_scores);
+
+
+function CalculateIdealScores(threshold_scores)
+    disp('Calculate Ideal Scores to be completed.');
+
+    
+        
 
 % --- Executes during object creation, after setting all properties.
 function IVT_Saccade_Detection_Threshold_CreateFcn(hObject, eventdata, handles)
