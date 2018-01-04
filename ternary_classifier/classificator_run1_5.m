@@ -588,11 +588,24 @@ set( findobj('Tag','Execute_Classification_Button'), 'Enable', 'On');
 % ========== Real execution of classification models  END ===================
 
 function TestThresholds(classificator, MODEL_SETTINGS, i)
+    disp('Testing thresholds...');
+    
+    INPUT_DATA_NAME = split(MODEL_SETTINGS.READER.INPUT_DATA_NAME, '/');
+    INPUT_DATA_NAME = INPUT_DATA_NAME(length(INPUT_DATA_NAME));
+    INPUT_DATA_NAME = split(INPUT_DATA_NAME, '.');
+    INPUT_DATA_NAME = INPUT_DATA_NAME{1};
+    
+    saccade_directory_name = 'Results/SaccadeResults/';
+    final_results_directory_name = 'Results/FinalResults/';
+    
+    sample_rate = string(MODEL_SETTINGS.READER.SAMPLE_RATE);
+    
     threshold_scores = [];
     scores_index = 1;
-    for saccade_threshold=50:250
-        for dispersion_threshold=1:500
-            for duration_threshold=75:300
+    % 50:250, 1:500, 75:300
+    for saccade_threshold=150:152
+        for dispersion_threshold=50:50
+            for duration_threshold=150:150
                 classificator{i}.classify(true, saccade_threshold, double(dispersion_threshold/100), duration_threshold);
                 classificator{i}.eye_tracker_data_filter_degree_range();
                 classificator{i}.merge_fixation_time_interval = MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL;
@@ -637,21 +650,99 @@ function TestThresholds(classificator, MODEL_SETTINGS, i)
                         double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
                         double(scores_computator.MisFix) double(scores_computator.FQlS)];
                     scores_index = scores_index + 1;
-
                 end
             end
         end
+        disp('Saving threshold scores for saccade threshold: ' + string(saccade_threshold));
+        
+        resultTime = ResultsTime();
+        filename = saccade_directory_name + resultTime + '-f' + sample_rate + '-' + INPUT_DATA_NAME + '-s-' + string(saccade_threshold) + '.mat';
+        
+        save(filename, 'threshold_scores');
+        disp('Threshold scores for saccade threshold: ' + string(saccade_threshold) + ' saved.');
     end
     
-    CalculateIdealScores(threshold_scores);
-
-
-function CalculateIdealScores(threshold_scores)
-    disp('Calculate Ideal Scores to be completed.');
-
+    disp('All thresholds tested.');
     
-        
+    disp('Saving threshold results to file...');
+    frequency = '1000';
+    resultTime = ResultsTime();
+    filename = final_results_directory_name + resultTime + '-f' + sample_rate + '-' + INPUT_DATA_NAME + '-results.mat';
+    
+    % Write scores to file
+    save(filename, 'threshold_scores');
+    
+    disp('Thresholds results saved to file.')
+    
+    % Calculate Ideal scores
+    CalculateIdealScores(threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate);
 
+
+function CalculateIdealScores(threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate)
+    disp('Calculating Ideal Scores...');
+    
+    % Calculate ideal scores
+    IDEAL_PQNS = 0;
+    IDEAL_FQNS = 0;
+    IDEAL_SQNS = 100;
+    IDEAL_MISFIX = 12.2;
+    IDEAL_FQLS = 0;
+    
+    SACCADE_THRESHOLD_INDEX = 1;
+    DISPERSION_INDEX = 2;
+    DURATION_INDEX = 3;
+    PQNS = 4;
+    FQNS = 5;
+    SQNS = 6;
+    MISFIX = 7;
+    FQLS = 8;
+    
+    best_saccade_threshold = 0;
+    best_dispersion_threshold = 0;
+    best_duration_threshold = 0;
+    minimum_distance = 1000;
+    best_pqns = 0;
+    best_fqns = 0;
+    best_sqns = 0;
+    best_misfix = 0;
+    best_fqls = 0;
+    
+    for index=1:size(threshold_scores, 1)
+        distance = abs(threshold_scores(index, PQNS) - IDEAL_PQNS) + ...
+            abs(threshold_scores(index, FQNS) - IDEAL_FQNS) + ...
+            abs(threshold_scores(index, SQNS) - IDEAL_SQNS) + ...
+            abs(threshold_scores(index, MISFIX) - IDEAL_MISFIX) + ...
+            abs(threshold_scores(index, FQLS) - IDEAL_FQLS);
+        
+        if distance < minimum_distance
+            minimum_distance = distance;
+            best_saccade_threshold = threshold_scores(index, SACCADE_THRESHOLD_INDEX);
+            best_dispersion_threshold = threshold_scores(index, DISPERSION_INDEX);
+            best_duration_threshold = threshold_scores(index, DURATION_INDEX);
+            best_pqns = threshold_scores(index, PQNS);
+            best_fqns = threshold_scores(index, FQNS);
+            best_sqns = threshold_scores(index, SQNS);
+            best_misfix = threshold_scores(index, MISFIX);
+            best_fqls = threshold_scores(index, FQLS);
+        end
+    end
+    
+    disp('Ideal Scores Computed.');
+    
+    disp('Saving ideal scores to file...');
+    % Now need to write best scores to file
+    resultTime = ResultsTime();
+    filename = final_results_directory_name + resultTime + '-f' + sample_rate + '-' + INPUT_DATA_NAME + '-best.mat';
+    save(filename, 'minimum_distance', 'best_saccade_threshold', 'best_dispersion_threshold', 'best_duration_threshold', ...
+        'best_pqns', 'best_fqns', 'best_sqns', 'best_misfix', 'best_fqls');
+    
+    disp('Ideal scores saved.');
+
+function [resultTime] = ResultsTime()
+    time = clock;
+    resultTime = string(time(1)) + '-' + string(time(2)) + '-' + string(time(3)) + '-' + string(time(4)) + '-' + string(time(5));
+    
+    
 % --- Executes during object creation, after setting all properties.
 function IVT_Saccade_Detection_Threshold_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to IVT_Saccade_Detection_Threshold (see GCBO)
