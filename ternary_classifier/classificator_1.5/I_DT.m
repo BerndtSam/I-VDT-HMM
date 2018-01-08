@@ -57,7 +57,11 @@ function [ noiseless_eye_record ] = I_DT( dispersion_threshold, duration_thresho
                 % Add one point to the window
                 if end_index < length(noiseless_eye_record)
                     end_index = end_index + 1;
+                else
+                    break;
                 end
+                
+                
 
                 % See if that point is greater than max or less than
                 % min

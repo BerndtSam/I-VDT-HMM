@@ -23,7 +23,7 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
     methods
 
 % Classification function
-        function classify(obj, test_thresholds, saccade_threshold, dispersion_threshold, duration_threshold)
+        function classify(obj, test_thresholds, saccade_threshold, dispersion_threshold, duration_threshold, sample_rate)
             if( obj.debug_mode ~= 0)
                 fprintf(strcat('Begin data classification with user classifier in :',datestr(now),'\n'));
             end
@@ -37,7 +37,7 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
 
                 % I-DT variables
                 DISPERSION_THRESHOLD = dispersion_threshold;
-                DURATION_THRESHOLD = duration_threshold;
+                DURATION_THRESHOLD = floor(duration_threshold/sample_rate);
             else
                 % I-VT variables
                 SACCADE_DETECTION_THRESHOLD_DEG_SEC = 150;

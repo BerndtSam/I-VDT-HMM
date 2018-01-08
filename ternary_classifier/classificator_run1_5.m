@@ -590,91 +590,128 @@ set( findobj('Tag','Execute_Classification_Button'), 'Enable', 'On');
 function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
     disp('Testing thresholds...');
     
+    %MODEL_SETTINGS.READER.INPUT_DATA_NAME = '';
+    %classificator{i}.input_data_name = '/Users/SamBerndt/Desktop/Class/Research/test/I-VDT-HMM/ternary_classifier/classificator_1.5/input/s_007'
+    %classificator{i}.read_data();
+    INPUT_DATA_FILE = MODEL_SETTINGS.READER.INPUT_DATA_NAME;
+    %INPUT_DATA_FILE = split(INPUT_DATA_FILE, '.');
+    INPUT_DATA_FILE = split(INPUT_DATA_FILE, '/');
+    temp_INPUT_DATA_FILE = '';
+    for dir_index=1:length(INPUT_DATA_FILE)
+        if isempty(INPUT_DATA_FILE{dir_index})
+            continue
+        elseif string(INPUT_DATA_FILE{dir_index}) == 'input'
+            temp_INPUT_DATA_FILE = temp_INPUT_DATA_FILE + '/' + INPUT_DATA_FILE{dir_index} + '/Subsamples';
+        else
+            temp_INPUT_DATA_FILE = string(temp_INPUT_DATA_FILE) + '/' + INPUT_DATA_FILE{dir_index};
+        end
+        
+    end
+    INPUT_DATA_FILE = temp_INPUT_DATA_FILE;
+    INPUT_DATA_FILE = split(INPUT_DATA_FILE, '.');
+    INPUT_DATA_FILE = string(INPUT_DATA_FILE(1)) + string(INPUT_DATA_FILE(2));
+    
     INPUT_DATA_NAME = split(MODEL_SETTINGS.READER.INPUT_DATA_NAME, '/');
     INPUT_DATA_NAME = INPUT_DATA_NAME(length(INPUT_DATA_NAME));
     INPUT_DATA_NAME = split(INPUT_DATA_NAME, '.');
     INPUT_DATA_NAME = INPUT_DATA_NAME{1};
     
-    saccade_directory_name = 'Results/SaccadeResults/';
+    frequency_directory_name = 'Results/FrequencyResults/';
     final_results_directory_name = 'Results/FinalResults/';
     
-    sample_rate = string(MODEL_SETTINGS.READER.SAMPLE_RATE);
-    
-    threshold_scores = [];
+    normal_rate = 1000;
+    %sample_rates = [10 20 30 50 60 100 200 300 500 600 1000];
+    sample_rates = [500 1000];
+    final_threshold_scores = [];
     scores_index = 1;
-    % 50:250, 1:500, 75:300
-    for saccade_threshold=150:152
-        for dispersion_threshold=50:50
-            for duration_threshold=150:150
-                classificator{classifier_index}.classify(true, saccade_threshold, double(dispersion_threshold/100), duration_threshold);
-                classificator{classifier_index}.eye_tracker_data_filter_degree_range();
-                classificator{classifier_index}.merge_fixation_time_interval = MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL;
-                classificator{classifier_index}.merge_fixation_distance = MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE;
-                classificator{classifier_index}.merge_records();
-                if( MODEL_SETTINGS.FILTER.USE ~= 0)
-                    classificator{classifier_index}.minimal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE;
-                    classificator{classifier_index}.maximal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE;
-                    classificator{classifier_index}.minimal_saccade_length =       MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH;
-                    classificator{classifier_index}.unfiltered_saccade_records =   classificator{classifier_index}.saccade_records;
-                    classificator{classifier_index}.saccade_filtering();
-                    classificator{classifier_index}.saccade_records =              classificator{classifier_index}.filtered_saccade_records;
-                end
-                if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0 || MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
-% Hardcoded parameters for provided input files
-                    scores_computator = scores_computation_class;
-                    scores_computator.read_stimulus_data( MODEL_SETTINGS.READER.INPUT_DATA_NAME, 13, 14, 1, 14);
-                    scores_computator.eye_records = classificator{classifier_index}.eye_records;
-                    scores_computator.saccade_records = classificator{classifier_index}.saccade_records;
-                    scores_computator.fixation_records = classificator{classifier_index}.fixation_records;
-                    scores_computator.noise_records = classificator{classifier_index}.noise_records;
-                    scores_computator.pursuit_records = classificator{classifier_index}.pursuit_records;
-                    scores_computator.sample_rate = classificator{classifier_index}.sample_rate;
-                    scores_computator.delta_t_sec = classificator{classifier_index}.delta_t_sec;
-                end
-%                 if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0)
-%                     scores_computator.draw_graphics(MODEL_SETTINGS.PROCESSING.PLOTS.MODE,method_name{i});
-%                 end
-                if( MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
-                    threshold_scores(scores_index, :) = [double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
-                        double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
-                        double(scores_computator.MisFix) double(scores_computator.FQlS)];
-                    scores_index = scores_index + 1;
+    for sample_index=1:length(sample_rates)
+        frequency_threshold_scores = [];
+        frequency_scores_index = 1;
+        sample_rate = sample_rates(sample_index);
+        classificator{classifier_index}.sample_rate = sample_rate;
+        classificator{classifier_index}.input_data_name = INPUT_DATA_FILE + '_' + string(sample_rate) + '.txt';
+        classificator{classifier_index}.read_data();
+        % 50:250, 1:500, 75:300
+        for saccade_threshold=150:152            
+            for dispersion_threshold=50:50
+                for duration_threshold=150:150
+                    classificator{classifier_index}.classify(true, saccade_threshold, double(dispersion_threshold/100), duration_threshold, normal_rate/sample_rate);
+                    classificator{classifier_index}.eye_tracker_data_filter_degree_range();
+                    classificator{classifier_index}.merge_fixation_time_interval = MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL;
+                    classificator{classifier_index}.merge_fixation_distance = MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE;
+                    classificator{classifier_index}.merge_records();
+                    if( MODEL_SETTINGS.FILTER.USE ~= 0)
+                        classificator{classifier_index}.minimal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE;
+                        classificator{classifier_index}.maximal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE;
+                        classificator{classifier_index}.minimal_saccade_length =       MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH;
+                        classificator{classifier_index}.unfiltered_saccade_records =   classificator{classifier_index}.saccade_records;
+                        classificator{classifier_index}.saccade_filtering();
+                        classificator{classifier_index}.saccade_records =              classificator{classifier_index}.filtered_saccade_records;
+                    end
+                    if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0 || MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
+    % Hardcoded parameters for provided input files
+                        scores_computator = scores_computation_class;
+                        scores_computator.read_stimulus_data( MODEL_SETTINGS.READER.INPUT_DATA_NAME, 13, 14, 1, 14);
+                        scores_computator.eye_records = classificator{classifier_index}.eye_records;
+                        scores_computator.saccade_records = classificator{classifier_index}.saccade_records;
+                        scores_computator.fixation_records = classificator{classifier_index}.fixation_records;
+                        scores_computator.noise_records = classificator{classifier_index}.noise_records;
+                        scores_computator.pursuit_records = classificator{classifier_index}.pursuit_records;
+                        scores_computator.sample_rate = sample_rate;
+                        scores_computator_delta_t_sec = floor(1/sample_rate);
+                        %scores_computator.sample_rate = classificator{classifier_index}.sample_rate;
+                        %scores_computator.delta_t_sec = classificator{classifier_index}.delta_t_sec;
+                    end
+    %                 if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0)
+    %                     scores_computator.draw_graphics(MODEL_SETTINGS.PROCESSING.PLOTS.MODE,method_name{i});
+    %                 end
+                    if( MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
+                        frequency_threshold_scores(frequency_scores_index, :) = [double(sample_rate) double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
+                            double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
+                            double(scores_computator.MisFix) double(scores_computator.FQlS)];
+                        final_threshold_scores(scores_index, :) = [double(sample_rate) double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
+                            double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
+                            double(scores_computator.MisFix) double(scores_computator.FQlS)];
+                        
+                        scores_index = scores_index + 1;
+                        frequency_scores_index = frequency_scores_index + 1;
+                    end
                 end
             end
         end
-        disp('Saving threshold scores for saccade threshold: ' + string(saccade_threshold));
         
+        disp('Saving threshold scores for sampling frequency: ' + string(sample_rate));
+
         resultTime = ResultsTime();
-        filename = saccade_directory_name + resultTime + '-f' + sample_rate + '-' + INPUT_DATA_NAME + '-s-' + string(saccade_threshold) + '.mat';
-        
-        save(filename, 'threshold_scores');
-        disp('Threshold scores for saccade threshold: ' + string(saccade_threshold) + ' saved.');
+        filename = frequency_directory_name + resultTime + '-f' + string(sample_rate) + '-' + INPUT_DATA_NAME + '.mat';
+
+        save(filename, 'frequency_threshold_scores');
+        disp('Threshold scores for sampling frequency: ' + string(sample_rate) + ' saved.');
     end
-    
     disp('All thresholds tested.');
     
     disp('Saving threshold results to file...');
     resultTime = ResultsTime();
-    filename = final_results_directory_name + resultTime + '-f' + sample_rate + '-' + INPUT_DATA_NAME + '-results.mat';
+    filename = final_results_directory_name + resultTime + INPUT_DATA_NAME + '-results.mat';
     
     % Write scores to file
-    save(filename, 'threshold_scores');
+    save(filename, 'final_threshold_scores');
     
     disp('Thresholds results saved to file.')
     
     % Calculate Ideal scores
-    CalculateIdealScores(threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate);
+    CalculateIdealScores(final_threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate);
 
 
 function CalculateIdealScores(threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate)
     disp('Calculating Ideal Scores...');
     
     % Calculate ideal scores
-    IDEAL_PQNS = 0;
-    IDEAL_FQNS = 0;
+    IDEAL_PQNS = 52;
+    IDEAL_FQNS = 82;
     IDEAL_SQNS = 100;
     IDEAL_MISFIX = 12.2;
-    IDEAL_FQLS = 0;
+    IDEAL_FQLS = 0.5;
     
     SACCADE_THRESHOLD_INDEX = 1;
     DISPERSION_INDEX = 2;
@@ -720,7 +757,7 @@ function CalculateIdealScores(threshold_scores, INPUT_DATA_NAME, final_results_d
     disp('Saving ideal scores to file...');
     % Now need to write best scores to file
     resultTime = ResultsTime();
-    filename = final_results_directory_name + resultTime + '-f' + sample_rate + '-' + INPUT_DATA_NAME + '-best.mat';
+    filename = final_results_directory_name + resultTime + '-f' + string(sample_rate) + '-' + INPUT_DATA_NAME + '-best.mat';
     save(filename, 'minimum_distance', 'best_saccade_threshold', 'best_dispersion_threshold', 'best_duration_threshold', ...
         'best_pqns', 'best_fqns', 'best_sqns', 'best_misfix', 'best_fqls');
     
