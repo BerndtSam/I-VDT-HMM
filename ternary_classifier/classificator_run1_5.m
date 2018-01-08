@@ -165,7 +165,7 @@ function Enable_Plots_Callback(hObject, eventdata, handles)
 % that we setup all variables and ready to proceed to classifications
 
 % --- Executes on button press in Execute_Classification_Button.
-function Execute_Classification_Button_Callback(hObject, eventdata, handles)
+function Execute_Classification_Button_Callback(hObject, eventdata, handles, InputFile)
 % hObject    handle to Execute_Classification_Button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -173,304 +173,346 @@ function Execute_Classification_Button_Callback(hObject, eventdata, handles)
 clc;
 path(path,'classificator_1.5');
 
-    model_count = 0;    % Model counter - how much models we are using
     local_error = 0;    % Flag for local errors - mistyped parameters etc
-    i = 0;
 
-% Switch off Classify button
-    set( findobj('Tag','Execute_Classification_Button'), 'Enable', 'Inactive');
-    
-% Below there is five almost identical code blocks. Each of them reading
-% parameters for one model
 
-% ========== I-VT Model settings START ================
-    MODEL_SETTINGS.USE.IVT = get(findobj('Tag','Use_IVT_Model_Checkbox'),'Value');
-    if(MODEL_SETTINGS.USE.IVT ~= 0)
-        model_count=model_count+1;
-% Read parameters
-        MODEL_SETTINGS.IVT.SACCADE_DETECTION_THRESHOLD = str2double( get(findobj('Tag','IVT_Saccade_Detection_Threshold'),'String') );
-% Check parameters
-        if( (isnan(MODEL_SETTINGS.IVT.SACCADE_DETECTION_THRESHOLD) || MODEL_SETTINGS.IVT.SACCADE_DETECTION_THRESHOLD < 1) && local_error == 0)
-            errordlg('I-VT Saccade detection threshold value is incorrect. Please enter a correct one','Incorrect threshold value.');
-            local_error = 1;
+    if isempty(InputFile) == 1
+        model_count = 0;    % Model counter - how much models we are using
+        i = 0;
+
+    % Switch off Classify button
+        set( findobj('Tag','Execute_Classification_Button'), 'Enable', 'Inactive');
+
+    % Below there is five almost identical code blocks. Each of them reading
+    % parameters for one model
+
+    % ========== I-VT Model settings START ================
+        MODEL_SETTINGS.USE.IVT = get(findobj('Tag','Use_IVT_Model_Checkbox'),'Value');
+        if(MODEL_SETTINGS.USE.IVT ~= 0)
+            model_count=model_count+1;
+    % Read parameters
+            MODEL_SETTINGS.IVT.SACCADE_DETECTION_THRESHOLD = str2double( get(findobj('Tag','IVT_Saccade_Detection_Threshold'),'String') );
+    % Check parameters
+            if( (isnan(MODEL_SETTINGS.IVT.SACCADE_DETECTION_THRESHOLD) || MODEL_SETTINGS.IVT.SACCADE_DETECTION_THRESHOLD < 1) && local_error == 0)
+                errordlg('I-VT Saccade detection threshold value is incorrect. Please enter a correct one','Incorrect threshold value.');
+                local_error = 1;
+            end
         end
-    end
-% ========== I-VT Model settings END ================
+    % ========== I-VT Model settings END ================
 
-% ========== I-VVT Model settings START ================
-    MODEL_SETTINGS.USE.IVVT = get(findobj('Tag','Use_IVVT_Model_Checkbox'),'Value');
-    if(MODEL_SETTINGS.USE.IVVT ~= 0)
-        model_count=model_count+1;
-% Read parameters
-        MODEL_SETTINGS.IVVT.SACCADE_DETECTION_THRESHOLD = str2double( get(findobj('Tag','IVT_Saccade_Detection_Threshold'),'String') );
-        MODEL_SETTINGS.IVVT.FIXATION_DETECTION_THRESHOLD = str2double(get(findobj('Tag','IVVT_Fixation_Detection_Threshold'),'String') );
-% Check parameters
-        if( (isnan(MODEL_SETTINGS.IVVT.SACCADE_DETECTION_THRESHOLD) || MODEL_SETTINGS.IVVT.SACCADE_DETECTION_THRESHOLD < 1) && local_error == 0)
-            errordlg('I-VVT Saccade detection threshold value is incorrect. Please enter a correct one','Incorrect threshold value.');
-            local_error = 501;
+    % ========== I-VVT Model settings START ================
+        MODEL_SETTINGS.USE.IVVT = get(findobj('Tag','Use_IVVT_Model_Checkbox'),'Value');
+        if(MODEL_SETTINGS.USE.IVVT ~= 0)
+            model_count=model_count+1;
+    % Read parameters
+            MODEL_SETTINGS.IVVT.SACCADE_DETECTION_THRESHOLD = str2double( get(findobj('Tag','IVT_Saccade_Detection_Threshold'),'String') );
+            MODEL_SETTINGS.IVVT.FIXATION_DETECTION_THRESHOLD = str2double(get(findobj('Tag','IVVT_Fixation_Detection_Threshold'),'String') );
+    % Check parameters
+            if( (isnan(MODEL_SETTINGS.IVVT.SACCADE_DETECTION_THRESHOLD) || MODEL_SETTINGS.IVVT.SACCADE_DETECTION_THRESHOLD < 1) && local_error == 0)
+                errordlg('I-VVT Saccade detection threshold value is incorrect. Please enter a correct one','Incorrect threshold value.');
+                local_error = 501;
+            end
+            if( (isnan(MODEL_SETTINGS.IVVT.FIXATION_DETECTION_THRESHOLD) || MODEL_SETTINGS.IVVT.FIXATION_DETECTION_THRESHOLD < 1) && local_error == 0)
+                errordlg('I-VVT Fixation detection threshold value is incorrect. Please enter a correct one','Incorrect threshold value.');
+                local_error = 502;
+            end
+            if( ~local_error && MODEL_SETTINGS.IVVT.FIXATION_DETECTION_THRESHOLD > MODEL_SETTINGS.IVVT.SACCADE_DETECTION_THRESHOLD )
+                errordlg('I-VVT Fixation detection threshold is greater than I-VVT Saccade detection threshold. Please enter a correct values','Incorrect threshold value.');
+                local_error = 503;
+            end
         end
-        if( (isnan(MODEL_SETTINGS.IVVT.FIXATION_DETECTION_THRESHOLD) || MODEL_SETTINGS.IVVT.FIXATION_DETECTION_THRESHOLD < 1) && local_error == 0)
-            errordlg('I-VVT Fixation detection threshold value is incorrect. Please enter a correct one','Incorrect threshold value.');
-            local_error = 502;
-        end
-        if( ~local_error && MODEL_SETTINGS.IVVT.FIXATION_DETECTION_THRESHOLD > MODEL_SETTINGS.IVVT.SACCADE_DETECTION_THRESHOLD )
-            errordlg('I-VVT Fixation detection threshold is greater than I-VVT Saccade detection threshold. Please enter a correct values','Incorrect threshold value.');
-            local_error = 503;
-        end
-    end
-% ========== I-VVT Model settings END ================
+    % ========== I-VVT Model settings END ================
 
-% ========== User Model settings START ==========
-% checking for user model settings - but only if corresponding checkbox is
-% toggled on
-    MODEL_SETTINGS.USE.PURSUITS = get(findobj('Tag','Use_USER_Model_Checkbox'),'Value');
-    if(MODEL_SETTINGS.USE.PURSUITS ~= 0)
-        model_count=model_count+1;
-% Read parameters
-%        MODEL_SETTINGS.PURSUITS.X1 = str2double( get(findobj('Tag','Field1'),'String') );
-%        MODEL_SETTINGS.PURSUITS.X2 = str2double( get(findobj('Tag','Field2'),'String') );
-% Check parameters
-% Put your tests of input data here
-    end  
-% ========== User Model settings END ============
+    % ========== User Model settings START ==========
+    % checking for user model settings - but only if corresponding checkbox is
+    % toggled on
+        MODEL_SETTINGS.USE.PURSUITS = get(findobj('Tag','Use_USER_Model_Checkbox'),'Value');
+        if(MODEL_SETTINGS.USE.PURSUITS ~= 0)
+            model_count=model_count+1;
+    % Read parameters
+    %        MODEL_SETTINGS.PURSUITS.X1 = str2double( get(findobj('Tag','Field1'),'String') );
+    %        MODEL_SETTINGS.PURSUITS.X2 = str2double( get(findobj('Tag','Field2'),'String') );
+    % Check parameters
+    % Put your tests of input data here
+        end  
+    % ========== User Model settings END ============
 
-% ========== Reader settings START ========
-if (local_error == 0)
-% Read parameters
-    MODEL_SETTINGS.READER.INPUT_DATA_NAME = get(findobj('Tag','Input_File_Name'),'String');
-    MODEL_SETTINGS.READER.X_FIELD = ceil( str2double( get(findobj('Tag','X_Field'),'String') ) );
-    MODEL_SETTINGS.READER.Y_FIELD = ceil( str2double( get(findobj('Tag','Y_Field'),'String') ) );
-    MODEL_SETTINGS.READER.V_FIELD = ceil( str2double( get(findobj('Tag','V_Field'),'String') ) );
-    MODEL_SETTINGS.READER.HEADER_COUNT = ceil(str2double( get(findobj('Tag','Header_Count'),'String') ) );
-    MODEL_SETTINGS.READER.SAMPLE_RATE = ceil(str2double( get(findobj('Tag','Sample_Rate'),'String') ) );
-    MODEL_SETTINGS.READER.FIELDS_COUNT = ceil(str2double( get(findobj('Tag','Fields_Count'),'String') ) );
-    MODEL_SETTINGS.CONVERTER.USE = get(findobj('Tag','Convert_Data'),'Value');
-% Check parameters
-    if((isnan(MODEL_SETTINGS.READER.SAMPLE_RATE) || MODEL_SETTINGS.READER.SAMPLE_RATE < 1)  && local_error == 0 )
-        errordlg('Tracker sampling rate must be positive integer. Please correct input data.','Incorrect sampling rate.');
-        local_error=24;
-        MODEL_SETTINGS.READER.DELTA_T_SEC = nan;
-    else
-        MODEL_SETTINGS.READER.DELTA_T_SEC = 1/MODEL_SETTINGS.READER.SAMPLE_RATE;
-    end
-    if( (isnan(MODEL_SETTINGS.READER.HEADER_COUNT) || MODEL_SETTINGS.READER.HEADER_COUNT < 0) && local_error == 0)
-        errordlg('Header lines count must be a non-negative integer. Please enter the correct value.','Incorrect header lines count.');
-        local_error=25;
-    end
-    if( (isnan(MODEL_SETTINGS.READER.V_FIELD) || MODEL_SETTINGS.READER.V_FIELD < 0) && local_error == 0)
-        errordlg('Incorrect validity field number. Please correct this error.','Incorrect validity field number.');
-        local_error=26;
-    end
-    if( (isnan(MODEL_SETTINGS.READER.Y_FIELD) || MODEL_SETTINGS.READER.Y_FIELD <= 0) && local_error == 0)
-        errordlg('Incorrect y coordinate field number. Please correct this error.','Incorrect y coordinate field number.');
-        local_error=27;
-    end
-    if( (isnan(MODEL_SETTINGS.READER.X_FIELD) || MODEL_SETTINGS.READER.X_FIELD < 0) && local_error == 0)
-        errordlg('Incorrect x coordinate field number. Please correct this error.','Incorrect x coordinate field number.');
-        local_error=28;
-    end
-    if( (isnan(MODEL_SETTINGS.READER.FIELDS_COUNT) || MODEL_SETTINGS.READER.FIELDS_COUNT < 2) && local_error == 0)
-        errordlg('Number of fields in input file is incorrect. At least 2 have to be present in input file.','Incorrect number of fields in input file.');
-        local_error=60;
-    end
-    if( (~exist(MODEL_SETTINGS.READER.INPUT_DATA_NAME,'file') ) && local_error == 0)
-        errordlg('Provided file is not found. Check file name.','File input error.');
-        local_error=29;
-    end
-end
+    % ========== Reader settings START ========
+        if (local_error == 0)
+        % Read parameters
+            MODEL_SETTINGS.READER.INPUT_DATA_NAME = get(findobj('Tag','Input_File_Name'),'String');
+            MODEL_SETTINGS.READER.X_FIELD = ceil( str2double( get(findobj('Tag','X_Field'),'String') ) );
+            MODEL_SETTINGS.READER.Y_FIELD = ceil( str2double( get(findobj('Tag','Y_Field'),'String') ) );
+            MODEL_SETTINGS.READER.V_FIELD = ceil( str2double( get(findobj('Tag','V_Field'),'String') ) );
+            MODEL_SETTINGS.READER.HEADER_COUNT = ceil(str2double( get(findobj('Tag','Header_Count'),'String') ) );
+            MODEL_SETTINGS.READER.SAMPLE_RATE = ceil(str2double( get(findobj('Tag','Sample_Rate'),'String') ) );
+            MODEL_SETTINGS.READER.FIELDS_COUNT = ceil(str2double( get(findobj('Tag','Fields_Count'),'String') ) );
+            MODEL_SETTINGS.CONVERTER.USE = get(findobj('Tag','Convert_Data'),'Value');
+        % Check parameters
+            if((isnan(MODEL_SETTINGS.READER.SAMPLE_RATE) || MODEL_SETTINGS.READER.SAMPLE_RATE < 1)  && local_error == 0 )
+                errordlg('Tracker sampling rate must be positive integer. Please correct input data.','Incorrect sampling rate.');
+                local_error=24;
+                MODEL_SETTINGS.READER.DELTA_T_SEC = nan;
+            else
+                MODEL_SETTINGS.READER.DELTA_T_SEC = 1/MODEL_SETTINGS.READER.SAMPLE_RATE;
+            end
+            if( (isnan(MODEL_SETTINGS.READER.HEADER_COUNT) || MODEL_SETTINGS.READER.HEADER_COUNT < 0) && local_error == 0)
+                errordlg('Header lines count must be a non-negative integer. Please enter the correct value.','Incorrect header lines count.');
+                local_error=25;
+            end
+            if( (isnan(MODEL_SETTINGS.READER.V_FIELD) || MODEL_SETTINGS.READER.V_FIELD < 0) && local_error == 0)
+                errordlg('Incorrect validity field number. Please correct this error.','Incorrect validity field number.');
+                local_error=26;
+            end
+            if( (isnan(MODEL_SETTINGS.READER.Y_FIELD) || MODEL_SETTINGS.READER.Y_FIELD <= 0) && local_error == 0)
+                errordlg('Incorrect y coordinate field number. Please correct this error.','Incorrect y coordinate field number.');
+                local_error=27;
+            end
+            if( (isnan(MODEL_SETTINGS.READER.X_FIELD) || MODEL_SETTINGS.READER.X_FIELD < 0) && local_error == 0)
+                errordlg('Incorrect x coordinate field number. Please correct this error.','Incorrect x coordinate field number.');
+                local_error=28;
+            end
+            if( (isnan(MODEL_SETTINGS.READER.FIELDS_COUNT) || MODEL_SETTINGS.READER.FIELDS_COUNT < 2) && local_error == 0)
+                errordlg('Number of fields in input file is incorrect. At least 2 have to be present in input file.','Incorrect number of fields in input file.');
+                local_error=60;
+            end
+            if( (~exist(MODEL_SETTINGS.READER.INPUT_DATA_NAME,'file') ) && local_error == 0)
+                errordlg('Provided file is not found. Check file name.','File input error.');
+                local_error=29;
+            end
+        end
 % ========== Reader settings END ========
 
 % ========== Converter settings START ========
-if( local_error == 0 && MODEL_SETTINGS.CONVERTER.USE ~= 0)
-% Read parameters
-    MODEL_SETTINGS.CONVERTER.IMAGE_WIDTH_ETU = ceil( str2double( get(findobj('Tag','Image_Width_ETU'),'String') ) );
-    MODEL_SETTINGS.CONVERTER.IMAGE_HEIGHT_ETU = ceil( str2double( get(findobj('Tag','Image_Height_ETU'),'String') ) );
-    MODEL_SETTINGS.CONVERTER.IMAGE_WIDTH_MM = ceil( str2double( get(findobj('Tag','Image_Width_MM'),'String') ) );
-    MODEL_SETTINGS.CONVERTER.IMAGE_HEIGHT_MM = ceil( str2double( get(findobj('Tag','Image_Height_MM'),'String') ) );
-    MODEL_SETTINGS.CONVERTER.DISTANCE_FROM_SCREEN = ceil( str2double( get(findobj('Tag','Distance_From_Screen'),'String') ) );
-    MODEL_SETTINGS.CONVERTER.DISTANCE_TO_EYE_LEVEL = ceil( str2double( get(findobj('Tag','Distance_To_Eye_Level'),'String') ) );
-    MODEL_SETTINGS.CONVERTER.DISTANCE_TO_LOWER_SCREEN_EDGE = ceil( str2double( get(findobj('Tag','Distance_To_Lower_Screen_Edge'),'String') ) );
-% Check parameters
-    if( (isnan(MODEL_SETTINGS.CONVERTER.IMAGE_WIDTH_ETU) || MODEL_SETTINGS.CONVERTER.IMAGE_WIDTH_ETU < 1) && local_error == 0)
-        errordlg('Image width in ETU is incorrect. Please provide a correct value.','Incorrect ETU width.');
-        local_error = 30;
-    end
-    if( (isnan(MODEL_SETTINGS.CONVERTER.IMAGE_HEIGHT_ETU) || MODEL_SETTINGS.CONVERTER.IMAGE_HEIGHT_ETU < 1) && local_error == 0)
-        errordlg('Image height in ETU is incorrect. Please provide a correct value.','Incorrect ETU height.');
-        local_error = 31;
-    end
-    if( (isnan(MODEL_SETTINGS.CONVERTER.IMAGE_WIDTH_MM) || MODEL_SETTINGS.CONVERTER.IMAGE_WIDTH_MM < 1) && local_error == 0)
-        errordlg('Image width in mm is incorrect. Please provide a correct value.','Incorrect mm width.');
-        local_error = 32;
-    end
-    if( (isnan(MODEL_SETTINGS.CONVERTER.IMAGE_HEIGHT_MM) || MODEL_SETTINGS.CONVERTER.IMAGE_HEIGHT_MM < 1) && local_error == 0)
-        errordlg('Image height in mm is incorrect. Please provide a correct value.','Incorrect mm height.');
-        local_error = 33;
-    end
-    if( (isnan(MODEL_SETTINGS.CONVERTER.DISTANCE_FROM_SCREEN) || MODEL_SETTINGS.CONVERTER.DISTANCE_FROM_SCREEN < 1) && local_error == 0)
-        errordlg('Distance between screen and test subject is incorrect. Please provide a correct value.','Incorrect distance value.');
-        local_error = 34;
-    end
-    if( (isnan(MODEL_SETTINGS.CONVERTER.DISTANCE_TO_EYE_LEVEL) || MODEL_SETTINGS.CONVERTER.DISTANCE_TO_EYE_LEVEL <= 0) && local_error == 0)
-        errordlg('Distance to eye level is incorrect. Please provide a correct value.','Incorrect distance to eye level.');
-        local_error = 35;
-    end
-    if( (isnan(MODEL_SETTINGS.CONVERTER.DISTANCE_TO_LOWER_SCREEN_EDGE) || MODEL_SETTINGS.CONVERTER.DISTANCE_TO_LOWER_SCREEN_EDGE <= 0) && local_error == 0)
-        errordlg('Distance to lower screen edge is incorrect. Please provide a correct value.','Incorrect distance to lower screen edge.');
-        local_error = 36;
-    end
-    if( (MODEL_SETTINGS.CONVERTER.DISTANCE_TO_EYE_LEVEL < MODEL_SETTINGS.CONVERTER.DISTANCE_TO_LOWER_SCREEN_EDGE ) && local_error == 0)
-        errordlg('Distance to lower screen edge is greater than distance to eye level. Please correct this.','Inconsistent distances of levels.');
-        local_error = 70;
-    end
-end
+        if( local_error == 0 && MODEL_SETTINGS.CONVERTER.USE ~= 0)
+        % Read parameters
+            MODEL_SETTINGS.CONVERTER.IMAGE_WIDTH_ETU = ceil( str2double( get(findobj('Tag','Image_Width_ETU'),'String') ) );
+            MODEL_SETTINGS.CONVERTER.IMAGE_HEIGHT_ETU = ceil( str2double( get(findobj('Tag','Image_Height_ETU'),'String') ) );
+            MODEL_SETTINGS.CONVERTER.IMAGE_WIDTH_MM = ceil( str2double( get(findobj('Tag','Image_Width_MM'),'String') ) );
+            MODEL_SETTINGS.CONVERTER.IMAGE_HEIGHT_MM = ceil( str2double( get(findobj('Tag','Image_Height_MM'),'String') ) );
+            MODEL_SETTINGS.CONVERTER.DISTANCE_FROM_SCREEN = ceil( str2double( get(findobj('Tag','Distance_From_Screen'),'String') ) );
+            MODEL_SETTINGS.CONVERTER.DISTANCE_TO_EYE_LEVEL = ceil( str2double( get(findobj('Tag','Distance_To_Eye_Level'),'String') ) );
+            MODEL_SETTINGS.CONVERTER.DISTANCE_TO_LOWER_SCREEN_EDGE = ceil( str2double( get(findobj('Tag','Distance_To_Lower_Screen_Edge'),'String') ) );
+        % Check parameters
+            if( (isnan(MODEL_SETTINGS.CONVERTER.IMAGE_WIDTH_ETU) || MODEL_SETTINGS.CONVERTER.IMAGE_WIDTH_ETU < 1) && local_error == 0)
+                errordlg('Image width in ETU is incorrect. Please provide a correct value.','Incorrect ETU width.');
+                local_error = 30;
+            end
+            if( (isnan(MODEL_SETTINGS.CONVERTER.IMAGE_HEIGHT_ETU) || MODEL_SETTINGS.CONVERTER.IMAGE_HEIGHT_ETU < 1) && local_error == 0)
+                errordlg('Image height in ETU is incorrect. Please provide a correct value.','Incorrect ETU height.');
+                local_error = 31;
+            end
+            if( (isnan(MODEL_SETTINGS.CONVERTER.IMAGE_WIDTH_MM) || MODEL_SETTINGS.CONVERTER.IMAGE_WIDTH_MM < 1) && local_error == 0)
+                errordlg('Image width in mm is incorrect. Please provide a correct value.','Incorrect mm width.');
+                local_error = 32;
+            end
+            if( (isnan(MODEL_SETTINGS.CONVERTER.IMAGE_HEIGHT_MM) || MODEL_SETTINGS.CONVERTER.IMAGE_HEIGHT_MM < 1) && local_error == 0)
+                errordlg('Image height in mm is incorrect. Please provide a correct value.','Incorrect mm height.');
+                local_error = 33;
+            end
+            if( (isnan(MODEL_SETTINGS.CONVERTER.DISTANCE_FROM_SCREEN) || MODEL_SETTINGS.CONVERTER.DISTANCE_FROM_SCREEN < 1) && local_error == 0)
+                errordlg('Distance between screen and test subject is incorrect. Please provide a correct value.','Incorrect distance value.');
+                local_error = 34;
+            end
+            if( (isnan(MODEL_SETTINGS.CONVERTER.DISTANCE_TO_EYE_LEVEL) || MODEL_SETTINGS.CONVERTER.DISTANCE_TO_EYE_LEVEL <= 0) && local_error == 0)
+                errordlg('Distance to eye level is incorrect. Please provide a correct value.','Incorrect distance to eye level.');
+                local_error = 35;
+            end
+            if( (isnan(MODEL_SETTINGS.CONVERTER.DISTANCE_TO_LOWER_SCREEN_EDGE) || MODEL_SETTINGS.CONVERTER.DISTANCE_TO_LOWER_SCREEN_EDGE <= 0) && local_error == 0)
+                errordlg('Distance to lower screen edge is incorrect. Please provide a correct value.','Incorrect distance to lower screen edge.');
+                local_error = 36;
+            end
+            if( (MODEL_SETTINGS.CONVERTER.DISTANCE_TO_EYE_LEVEL < MODEL_SETTINGS.CONVERTER.DISTANCE_TO_LOWER_SCREEN_EDGE ) && local_error == 0)
+                errordlg('Distance to lower screen edge is greater than distance to eye level. Please correct this.','Inconsistent distances of levels.');
+                local_error = 70;
+            end
+        end
 % ========== Converter settings END ==========
 
 % =========== Filter settings START ==========
-MODEL_SETTINGS.FILTER.USE = get(findobj('Tag','Filtrate_Saccades'),'Value');
-if( MODEL_SETTINGS.FILTER.USE ~= 0)
-% Read parameters
-    MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE = str2double( get(findobj('Tag','Minimal_Saccade_Amplitude'),'String') );
-    MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE = str2double( get(findobj('Tag','Maximal_Saccade_Amplitude'),'String') );
-    MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH = ceil( str2double( get(findobj('Tag','Minimal_Saccade_Length'),'String') ) );
-% Check parameters
-    if( (isnan(MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE) || MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE < 0) && local_error == 0)
-        errordlg('Minimal saccade amplitude is incorrect. Please provide a correct value.','Incorrect minimal saccade amplitude.');
-        local_error = 37;
-    end
-    if( (isnan(MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE) || MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE < 0) && local_error == 0)
-        errordlg('Maximal saccade amplitude is incorrect. Please provide a correct value.','Incorrect maximal saccade amplitude.');
-        local_error = 38;
-    end
-    if( (isnan(MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH) || MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH < 1) && local_error == 0)
-        errordlg('Minimal saccade length is incorrect. Please provide a correct value.','Incorrect minimal saccade length.');
-        local_error = 39;
-    end
-end
+        MODEL_SETTINGS.FILTER.USE = get(findobj('Tag','Filtrate_Saccades'),'Value');
+        if( MODEL_SETTINGS.FILTER.USE ~= 0)
+        % Read parameters
+            MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE = str2double( get(findobj('Tag','Minimal_Saccade_Amplitude'),'String') );
+            MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE = str2double( get(findobj('Tag','Maximal_Saccade_Amplitude'),'String') );
+            MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH = ceil( str2double( get(findobj('Tag','Minimal_Saccade_Length'),'String') ) );
+        % Check parameters
+            if( (isnan(MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE) || MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE < 0) && local_error == 0)
+                errordlg('Minimal saccade amplitude is incorrect. Please provide a correct value.','Incorrect minimal saccade amplitude.');
+                local_error = 37;
+            end
+            if( (isnan(MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE) || MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE < 0) && local_error == 0)
+                errordlg('Maximal saccade amplitude is incorrect. Please provide a correct value.','Incorrect maximal saccade amplitude.');
+                local_error = 38;
+            end
+            if( (isnan(MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH) || MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH < 1) && local_error == 0)
+                errordlg('Minimal saccade length is incorrect. Please provide a correct value.','Incorrect minimal saccade length.');
+                local_error = 39;
+            end
+        end
 % =========== Filter settings END ==========
 
 % ========== Output settings START =========
-MODEL_SETTINGS.OUTPUT.BASENAME_OUTPUT_FILENAME = get(findobj('Tag','Basename_Output_Filename'),'String');
-MODEL_SETTINGS.OUTPUT.BASENAME_OUTPUT_EXTENSION = get(findobj('Tag','Basename_Output_Extension'),'String');
-MODEL_SETTINGS.OUTPUT.DEBUG_MODE = get(findobj('Tag','Debug_Mode'),'Value');
-if( strcmp(MODEL_SETTINGS.OUTPUT.BASENAME_OUTPUT_FILENAME,'') )
-    errordlg('Output filename not entered. Enter a vaild output filename.','No output filename.');
-    local_error = 40;
-end
+        MODEL_SETTINGS.OUTPUT.BASENAME_OUTPUT_FILENAME = get(findobj('Tag','Basename_Output_Filename'),'String');
+        MODEL_SETTINGS.OUTPUT.BASENAME_OUTPUT_EXTENSION = get(findobj('Tag','Basename_Output_Extension'),'String');
+        MODEL_SETTINGS.OUTPUT.DEBUG_MODE = get(findobj('Tag','Debug_Mode'),'Value');
+        if( strcmp(MODEL_SETTINGS.OUTPUT.BASENAME_OUTPUT_FILENAME,'') )
+            errordlg('Output filename not entered. Enter a vaild output filename.','No output filename.');
+            local_error = 40;
+        end
 % =========== Output settings END ==========
 
 % ===== Data Processing settings START =====
-MODEL_SETTINGS.PROCESSING.PLOTS.USE = get(findobj('Tag','Enable_Plots'),'Value');
-if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0)
-    if( get(findobj('Tag','Plot_Mode_1'),'Value') ~= 0)
-        MODEL_SETTINGS.PROCESSING.PLOTS.MODE = 1;
-    end
-    if( get(findobj('Tag','Plot_Mode_2'),'Value') ~= 0)
-        MODEL_SETTINGS.PROCESSING.PLOTS.MODE = 2;
-    end
-    if( get(findobj('Tag','Plot_Mode_3'),'Value') ~= 0)
-        MODEL_SETTINGS.PROCESSING.PLOTS.MODE = 3;
-    end
-    if( get(findobj('Tag','Plot_Mode_4'),'Value') ~= 0)
-        MODEL_SETTINGS.PROCESSING.PLOTS.MODE = 4;
-    end
-end
-MODEL_SETTINGS.PROCESSING.SCORES.USE = get(findobj('Tag','Enable_Scores_Calculations'),'Value');
+        MODEL_SETTINGS.PROCESSING.PLOTS.USE = get(findobj('Tag','Enable_Plots'),'Value');
+        if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0)
+            if( get(findobj('Tag','Plot_Mode_1'),'Value') ~= 0)
+                MODEL_SETTINGS.PROCESSING.PLOTS.MODE = 1;
+            end
+            if( get(findobj('Tag','Plot_Mode_2'),'Value') ~= 0)
+                MODEL_SETTINGS.PROCESSING.PLOTS.MODE = 2;
+            end
+            if( get(findobj('Tag','Plot_Mode_3'),'Value') ~= 0)
+                MODEL_SETTINGS.PROCESSING.PLOTS.MODE = 3;
+            end
+            if( get(findobj('Tag','Plot_Mode_4'),'Value') ~= 0)
+                MODEL_SETTINGS.PROCESSING.PLOTS.MODE = 4;
+            end
+        end
+        MODEL_SETTINGS.PROCESSING.SCORES.USE = get(findobj('Tag','Enable_Scores_Calculations'),'Value');
 % ===== Data Processing settings END =====
 
 % ===== Merge Settings START =====
 % Read parameters
-MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL = str2double( get(findobj('Tag','Merge_Time_Interval'),'String') );
-MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE = str2double( get(findobj('Tag','Merge_Distance'),'String') );
-% Check parameters
-if( (isnan(MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL) || MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL < 0) && local_error == 0)
-    errordlg('Merge fixation time interval is incorrect. Please provide a correct value.','Incorrect merge fixation time interval.');
-    local_error = 40;
-end
-if( (isnan(MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE) || MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE < 0) && local_error == 0)
-    errordlg('Merge fixation distance is incorrect. Please provide a correct value.','Incorrect merge fixation distance.');
-    local_error = 41;
-end
+        MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL = str2double( get(findobj('Tag','Merge_Time_Interval'),'String') );
+        MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE = str2double( get(findobj('Tag','Merge_Distance'),'String') );
+        % Check parameters
+        if( (isnan(MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL) || MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL < 0) && local_error == 0)
+            errordlg('Merge fixation time interval is incorrect. Please provide a correct value.','Incorrect merge fixation time interval.');
+            local_error = 40;
+        end
+        if( (isnan(MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE) || MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE < 0) && local_error == 0)
+            errordlg('Merge fixation distance is incorrect. Please provide a correct value.','Incorrect merge fixation distance.');
+            local_error = 41;
+        end
 
 % ====== Merge Settings End ======
 
 % ====== Data filtration settings BEGIN =====
- MODEL_SETTINGS.DEGREE_FILTER.BY_X = get(findobj('Tag','Filtrate_Input_Data_X'),'Value');
- MODEL_SETTINGS.DEGREE_FILTER.BY_Y = get(findobj('Tag','Filtrate_Input_Data_Y'),'Value');
- MODEL_SETTINGS.DEGREE_FILTER.MIN_X = str2double( get(findobj('Tag','Minimal_X_degree'),'String') );
- MODEL_SETTINGS.DEGREE_FILTER.MAX_X = str2double( get(findobj('Tag','Maximal_X_degree'),'String') );
- MODEL_SETTINGS.DEGREE_FILTER.MIN_Y = str2double( get(findobj('Tag','Minimal_Y_degree'),'String') );
- MODEL_SETTINGS.DEGREE_FILTER.MAX_Y = str2double( get(findobj('Tag','Maximal_Y_degree'),'String') );
- if( MODEL_SETTINGS.DEGREE_FILTER.BY_X ~= 0)
-     if( isnan(MODEL_SETTINGS.DEGREE_FILTER.MIN_X) && local_error == 0)
-        errordlg('Minimal allowed angle for X axis is incorrect. Please provide a correct value.','Incorrect minimal allowed X angle.');
-        local_error = 42;
-     end
-     if( isnan(MODEL_SETTINGS.DEGREE_FILTER.MAX_X) && local_error == 0)
-        errordlg('Maximal allowed angle for X axis is incorrect. Please provide a correct value.','Incorrect maximal allowed X angle.');
-        local_error = 43;
-     end
-     if( MODEL_SETTINGS.DEGREE_FILTER.MIN_X>=MODEL_SETTINGS.DEGREE_FILTER.MAX_X && local_error == 0)
-        errordlg('Allowed range of angles for X axis is incorrect. Please provide a correct value.','Incorrect allowed rangle of angles for X axis.');
-        local_error = 44;
-     end 
- end
- if( MODEL_SETTINGS.DEGREE_FILTER.BY_Y ~= 0)
-     if( isnan(MODEL_SETTINGS.DEGREE_FILTER.MIN_Y) && local_error == 0)
-        errordlg('Minimal allowed angle for Y axis is incorrect. Please provide a correct value.','Incorrect minimal allowed Y angle.');
-        local_error = 45;
-     end
-     if( isnan(MODEL_SETTINGS.DEGREE_FILTER.MAX_Y) && local_error == 0)
-        errordlg('Maximal allowed angle for Y axis is incorrect. Please provide a correct value.','Incorrect maximal allowed Y angle.');
-        local_error = 46;
-     end
-     if( MODEL_SETTINGS.DEGREE_FILTER.MIN_Y>=MODEL_SETTINGS.DEGREE_FILTER.MAX_Y && local_error == 0)
-        errordlg('Allowed range of angles for Y axis is incorrect. Please provide a correct value.','Incorrect allowed rangle of angles for Y axis.');
-        local_error = 47;
-     end 
- end
+         MODEL_SETTINGS.DEGREE_FILTER.BY_X = get(findobj('Tag','Filtrate_Input_Data_X'),'Value');
+         MODEL_SETTINGS.DEGREE_FILTER.BY_Y = get(findobj('Tag','Filtrate_Input_Data_Y'),'Value');
+         MODEL_SETTINGS.DEGREE_FILTER.MIN_X = str2double( get(findobj('Tag','Minimal_X_degree'),'String') );
+         MODEL_SETTINGS.DEGREE_FILTER.MAX_X = str2double( get(findobj('Tag','Maximal_X_degree'),'String') );
+         MODEL_SETTINGS.DEGREE_FILTER.MIN_Y = str2double( get(findobj('Tag','Minimal_Y_degree'),'String') );
+         MODEL_SETTINGS.DEGREE_FILTER.MAX_Y = str2double( get(findobj('Tag','Maximal_Y_degree'),'String') );
+         if( MODEL_SETTINGS.DEGREE_FILTER.BY_X ~= 0)
+             if( isnan(MODEL_SETTINGS.DEGREE_FILTER.MIN_X) && local_error == 0)
+                errordlg('Minimal allowed angle for X axis is incorrect. Please provide a correct value.','Incorrect minimal allowed X angle.');
+                local_error = 42;
+             end
+             if( isnan(MODEL_SETTINGS.DEGREE_FILTER.MAX_X) && local_error == 0)
+                errordlg('Maximal allowed angle for X axis is incorrect. Please provide a correct value.','Incorrect maximal allowed X angle.');
+                local_error = 43;
+             end
+             if( MODEL_SETTINGS.DEGREE_FILTER.MIN_X>=MODEL_SETTINGS.DEGREE_FILTER.MAX_X && local_error == 0)
+                errordlg('Allowed range of angles for X axis is incorrect. Please provide a correct value.','Incorrect allowed rangle of angles for X axis.');
+                local_error = 44;
+             end 
+         end
+         if( MODEL_SETTINGS.DEGREE_FILTER.BY_Y ~= 0)
+             if( isnan(MODEL_SETTINGS.DEGREE_FILTER.MIN_Y) && local_error == 0)
+                errordlg('Minimal allowed angle for Y axis is incorrect. Please provide a correct value.','Incorrect minimal allowed Y angle.');
+                local_error = 45;
+             end
+             if( isnan(MODEL_SETTINGS.DEGREE_FILTER.MAX_Y) && local_error == 0)
+                errordlg('Maximal allowed angle for Y axis is incorrect. Please provide a correct value.','Incorrect maximal allowed Y angle.');
+                local_error = 46;
+             end
+             if( MODEL_SETTINGS.DEGREE_FILTER.MIN_Y>=MODEL_SETTINGS.DEGREE_FILTER.MAX_Y && local_error == 0)
+                errordlg('Allowed range of angles for Y axis is incorrect. Please provide a correct value.','Incorrect allowed rangle of angles for Y axis.');
+                local_error = 47;
+             end 
+         end
 % ====== Data filtration settings END =======
 
 % Checking if we are really doing something at all - at least one of five
 % models are active and there was no errors at all
-    if(model_count == 0 && local_error == 0)
-        errordlg('You have not selected any model for classification. Please select at least one.','No models was selected');
-        local_error = 10000;
+        if(model_count == 0 && local_error == 0)
+            errordlg('You have not selected any model for classification. Please select at least one.','No models was selected');
+            local_error = 10000;
+        end
+        
+        if(local_error == 0)
+            classificator = {8};
+            method_str={8};
+            used = zeros(8,1);
+            data = cell(8,12);
+            method_name = {'IVT'; 'IVVT'; 'pursuits'};
+            if( MODEL_SETTINGS.USE.IVT ~= 0)
+                classificator{1} = classificator_IVT_class;
+                used(1) = 1;
+                method_str{1} = '_ivt';
+                classificator{1}.saccade_detection_threshold = MODEL_SETTINGS.IVT.SACCADE_DETECTION_THRESHOLD;
+            end
+            if( MODEL_SETTINGS.USE.IVVT ~= 0)
+                classificator{2} = classificator_IVVT_class;
+                used(2) = 1;
+                method_str{2} = '_ivvt';
+                classificator{2}.saccade_detection_threshold = MODEL_SETTINGS.IVVT.SACCADE_DETECTION_THRESHOLD;
+                classificator{2}.fixation_detection_threshold = MODEL_SETTINGS.IVVT.FIXATION_DETECTION_THRESHOLD;
+            end
+            if( MODEL_SETTINGS.USE.PURSUITS ~= 0)
+                classificator{3} = classificator_pursuits_class;
+                used(3) = 1;
+                method_str{3} = '_pursuits';
+    % Insert your fields here
+    %           classificator{3}.X1 = MODEL_SETTINGS.PURSUITS.X1;
+    %           classificator{3}.X2 = MODEL_SETTINGS.PURSUITS.X2;
+    %           .................................................
+    %
+            end
+        end
+        
+    else
+        MODEL_SETTINGS.READER.INPUT_DATA_NAME = InputFile;
+        MODEL_SETTINGS.READER.X_FIELD = 8;
+        MODEL_SETTINGS.READER.Y_FIELD = 9;
+        MODEL_SETTINGS.READER.V_FIELD = 11;
+        MODEL_SETTINGS.READER.HEADER_COUNT = 1;
+        MODEL_SETTINGS.READER.SAMPLE_RATE = 1000;
+        MODEL_SETTINGS.READER.FIELDS_COUNT = 14;
+        MODEL_SETTINGS.READER.DELTA_T_SEC = 1/1000;
+        MODEL_SETTINGS.CONVERTER.USE = false;
+        
+        MODEL_SETTINGS.FILTER.USE = true;
+        MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE = 4;
+        MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE = 180;
+        MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH = 4;
+        
+        MODEL_SETTINGS.OUTPUT.BASENAME_OUTPUT_FILENAME = 'classificator_1.5\output\s_001';
+        MODEL_SETTINGS.OUTPUT.BASENAME_OUTPUT_EXTENSION = '.txt';
+        MODEL_SETTINGS.OUTPUT.DEBUG_MODE = false;
+        MODEL_SETTINGS.PROCESSING.PLOTS.USE = false;
+        MODEL_SETTINGS.PROCESSING.SCORES.USE = true;
+        
+        MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL = 75;
+        MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE = 0.5;
+        
+        MODEL_SETTINGS.DEGREE_FILTER.BY_X = false;
+        MODEL_SETTINGS.DEGREE_FILTER.BY_Y = false;
+        MODEL_SETTINGS.DEGREE_FILTER.MIN_X = 0;
+        MODEL_SETTINGS.DEGREE_FILTER.MAX_X = 0;
+        MODEL_SETTINGS.DEGREE_FILTER.MIN_Y = 0;
+        MODEL_SETTINGS.DEGREE_FILTER.MAX_Y = 0;
+        
+        classificator{3} = classificator_pursuits_class;
+        used(3) = 1;
+        method_str{3} = '_pursuits';
+        
     end
-    
-
 % ========== Real execution of classification models  START =================
 % And now we can execute a real classifications methods according our
 % selections
-    if(local_error == 0)
-        classificator = {8};
-        method_str={8};
-        used = zeros(8,1);
-        data = cell(8,12);
-        method_name = {'IVT'; 'IVVT'; 'pursuits'};
-        if( MODEL_SETTINGS.USE.IVT ~= 0)
-            classificator{1} = classificator_IVT_class;
-            used(1) = 1;
-            method_str{1} = '_ivt';
-            classificator{1}.saccade_detection_threshold = MODEL_SETTINGS.IVT.SACCADE_DETECTION_THRESHOLD;
-        end
-        if( MODEL_SETTINGS.USE.IVVT ~= 0)
-            classificator{2} = classificator_IVVT_class;
-            used(2) = 1;
-            method_str{2} = '_ivvt';
-            classificator{2}.saccade_detection_threshold = MODEL_SETTINGS.IVVT.SACCADE_DETECTION_THRESHOLD;
-            classificator{2}.fixation_detection_threshold = MODEL_SETTINGS.IVVT.FIXATION_DETECTION_THRESHOLD;
-        end
-        if( MODEL_SETTINGS.USE.PURSUITS ~= 0)
-            classificator{3} = classificator_pursuits_class;
-            used(3) = 1;
-            method_str{3} = '_pursuits';
-% Insert your fields here
-%           classificator{3}.X1 = MODEL_SETTINGS.PURSUITS.X1;
-%           classificator{3}.X2 = MODEL_SETTINGS.PURSUITS.X2;
-%           .................................................
-%
-        end
+    
         
         for i=1:3
             data{ i,1 } = 'N/A';
@@ -580,21 +622,19 @@ end
                 end
             end
         end
-        set( findobj('Tag','Scores_Table'), 'Data', data );
-    end
+        %set( findobj('Tag','Scores_Table'), 'Data', data );
+    
     
 % Switch Classify button back to on
-set( findobj('Tag','Execute_Classification_Button'), 'Enable', 'On');
+%set( findobj('Tag','Execute_Classification_Button'), 'Enable', 'On');
+
+
 % ========== Real execution of classification models  END ===================
 
 function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
     disp('Testing thresholds...');
-    
-    %MODEL_SETTINGS.READER.INPUT_DATA_NAME = '';
-    %classificator{i}.input_data_name = '/Users/SamBerndt/Desktop/Class/Research/test/I-VDT-HMM/ternary_classifier/classificator_1.5/input/s_007'
-    %classificator{i}.read_data();
+   
     INPUT_DATA_FILE = MODEL_SETTINGS.READER.INPUT_DATA_NAME;
-    %INPUT_DATA_FILE = split(INPUT_DATA_FILE, '.');
     INPUT_DATA_FILE = split(INPUT_DATA_FILE, '/');
     temp_INPUT_DATA_FILE = '';
     for dir_index=1:length(INPUT_DATA_FILE)
@@ -619,7 +659,7 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
     frequency_directory_name = 'Results/FrequencyResults/';
     final_results_directory_name = 'Results/FinalResults/';
     
-    normal_rate = 1000;
+    normal_rate = MODEL_SETTINGS.READER.SAMPLE_RATE;
     %sample_rates = [10 20 30 50 60 100 200 300 500 600 1000];
     sample_rates = [500 1000];
     final_threshold_scores = [];
@@ -666,6 +706,8 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
     %                     scores_computator.draw_graphics(MODEL_SETTINGS.PROCESSING.PLOTS.MODE,method_name{i});
     %                 end
                     if( MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
+                        
+                        % Add PQLS_V and PQLS_P, ideal scores are 0
                         frequency_threshold_scores(frequency_scores_index, :) = [double(sample_rate) double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
                             double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
                             double(scores_computator.MisFix) double(scores_computator.FQlS)];
@@ -707,10 +749,11 @@ function CalculateIdealScores(threshold_scores, INPUT_DATA_NAME, final_results_d
     disp('Calculating Ideal Scores...');
     
     % Calculate ideal scores
+    % Must be computed per data set -- values extracted from paper
     IDEAL_PQNS = 52;
-    IDEAL_FQNS = 82;
+    IDEAL_FQNS = 83.9;
     IDEAL_SQNS = 100;
-    IDEAL_MISFIX = 12.2;
+    IDEAL_MISFIX = 7.1;
     IDEAL_FQLS = 0.5;
     
     SACCADE_THRESHOLD_INDEX = 1;
@@ -733,11 +776,11 @@ function CalculateIdealScores(threshold_scores, INPUT_DATA_NAME, final_results_d
     best_fqls = 0;
     
     for index=1:size(threshold_scores, 1)
-        distance = abs(threshold_scores(index, PQNS) - IDEAL_PQNS) + ...
-            abs(threshold_scores(index, FQNS) - IDEAL_FQNS) + ...
-            abs(threshold_scores(index, SQNS) - IDEAL_SQNS) + ...
-            abs(threshold_scores(index, MISFIX) - IDEAL_MISFIX) + ...
-            abs(threshold_scores(index, FQLS) - IDEAL_FQLS);
+        distance = sqrt(abs(threshold_scores(index, PQNS) - IDEAL_PQNS)^2 + ...
+            abs(threshold_scores(index, FQNS) - IDEAL_FQNS)^2 + ...
+            abs(threshold_scores(index, SQNS) - IDEAL_SQNS)^2 + ...
+            abs(threshold_scores(index, MISFIX) - IDEAL_MISFIX)^2 + ...
+            abs(threshold_scores(index, FQLS) - IDEAL_FQLS)^2);
         
         if distance < minimum_distance
             minimum_distance = distance;
