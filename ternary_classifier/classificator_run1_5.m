@@ -172,7 +172,7 @@ function Execute_Classification_Button_Callback(hObject, eventdata, handles)
 
 clc;
 path(path,'classificator_1.5');
-
+    
     local_error = 0;    % Flag for local errors - mistyped parameters etc
     model_count = 0;    % Model counter - how much models we are using
     i = 0;
@@ -584,6 +584,10 @@ set( findobj('Tag','Execute_Classification_Button'), 'Enable', 'On');
 
 % ========== Real execution of classification models  END ===================
 function Run_Thresholding_Classifier(hObject, InputFile, classifier_index)
+        
+        clc;
+        path(path,'classificator_1.5');
+
         MODEL_SETTINGS.READER.INPUT_DATA_NAME = InputFile;
         MODEL_SETTINGS.READER.X_FIELD = 8;
         MODEL_SETTINGS.READER.Y_FIELD = 9;
@@ -614,7 +618,13 @@ function Run_Thresholding_Classifier(hObject, InputFile, classifier_index)
         MODEL_SETTINGS.DEGREE_FILTER.MAX_X = 0;
         MODEL_SETTINGS.DEGREE_FILTER.MIN_Y = 0;
         MODEL_SETTINGS.DEGREE_FILTER.MAX_Y = 0;
-                
+           
+        
+        classificator = {8};
+        method_str={8};
+        %used = zeros(8,1);
+        %data = cell(8,12);
+        %method_name = {'IVT'; 'IVVT'; 'pursuits'};
         classificator{classifier_index} = classificator_pursuits_class;
         method_str{classifier_index} = '_pursuits';
         
