@@ -777,7 +777,7 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
         
         disp('Calculating Ideal Thresholds for samling frequency: ' + string(sample_rate));
         % Calculate Ideal scores
-        CalculateIdealScores(final_threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate);
+        CalculateIdealThresholds(final_threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate);
         disp('Ideal Thresholds for samling frequency: ' + string(sample_rate) + ' calculated and saved');
 
     end
