@@ -774,6 +774,12 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
 
         save(filename, 'frequency_threshold_scores');
         disp('Threshold scores for sampling frequency: ' + string(sample_rate) + ' saved.');
+        
+        disp('Calculating Ideal Scores for samling frequency: ' + string(sample_rate));
+        % Calculate Ideal scores
+        CalculateIdealScores(final_threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate);
+        disp('Ideal Scores for samling frequency: ' + string(sample_rate) + ' calculated and saved');
+
     end
     disp('All thresholds tested.');
     
@@ -786,8 +792,6 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
     
     disp('Thresholds results saved to file.')
     
-    % Calculate Ideal scores
-    CalculateIdealScores(final_threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate);
 
 
 function CalculateIdealScores(threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate)
