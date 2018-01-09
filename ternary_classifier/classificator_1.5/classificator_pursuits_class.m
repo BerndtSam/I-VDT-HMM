@@ -31,7 +31,7 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
 %% Define Global Variables
             eye_record_length = length(obj.eye_records);
             
-            if test_thresholds == true
+            if exist('test_thresholds')
                 % I-VT variables
                 SACCADE_DETECTION_THRESHOLD_DEG_SEC = saccade_threshold;
 
