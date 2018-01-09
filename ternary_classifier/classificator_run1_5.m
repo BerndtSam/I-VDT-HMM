@@ -703,7 +703,9 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
         for saccade_threshold=150:152            
             for dispersion_threshold=50:50
                 for duration_threshold=150:150
+                    AlgorithmStartTime = clock;
                     classificator{classifier_index}.classify(true, saccade_threshold, double(dispersion_threshold/100), duration_threshold, normal_rate/sample_rate);
+                    AlgorithmEndTime = clock;
                     classificator{classifier_index}.eye_tracker_data_filter_degree_range();
                     classificator{classifier_index}.merge_fixation_time_interval = MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL;
                     classificator{classifier_index}.merge_fixation_distance = MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE;
@@ -734,12 +736,17 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
     %                     scores_computator.draw_graphics(MODEL_SETTINGS.PROCESSING.PLOTS.MODE,method_name{i});
     %                 end
                     if( MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
+                        ClassificationEndTime = clock;
                         
+                        AlgorithmRunTime = AlgorithmEndTime - AlgorithmStartTime;
+                        ClassificationRunTime = ClassificationEndTime - AlgorithmStartTime;
                         % Add PQLS_V and PQLS_P, ideal scores are 0
-                        frequency_threshold_scores(frequency_scores_index, :) = [double(sample_rate) double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
+                        frequency_threshold_scores(frequency_scores_index, :) = [double(sample_rate) double(AlgorithmRunTime(6)) double(ClassificationRunTime(6)) ...
+                            double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
                             double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
                             double(scores_computator.MisFix) double(scores_computator.FQlS)];
-                        final_threshold_scores(scores_index, :) = [double(sample_rate) double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
+                        final_threshold_scores(scores_index, :) = [double(sample_rate) double(AlgorithmRunTime(6)) double(ClassificationRunTime(6)) ...
+                            double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
                             double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
                             double(scores_computator.MisFix) double(scores_computator.FQlS)];
                         
