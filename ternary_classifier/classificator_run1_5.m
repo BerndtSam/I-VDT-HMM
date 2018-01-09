@@ -754,11 +754,11 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
                         frequency_threshold_scores(frequency_scores_index, :) = [double(sample_rate) double(AlgorithmRunTime(6)) double(ClassificationRunTime(6)) ...
                             double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
                             double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
-                            double(scores_computator.MisFix) double(scores_computator.FQlS)];
+                            double(scores_computator.MisFix) double(scores_computator.FQlS) double(scores_computator.PQlS_P) double(scores_computator.PQlS_V)];
                         final_threshold_scores(scores_index, :) = [double(sample_rate) double(AlgorithmRunTime(6)) double(ClassificationRunTime(6)) ...
                             double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
                             double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
-                            double(scores_computator.MisFix) double(scores_computator.FQlS)];
+                            double(scores_computator.MisFix) double(scores_computator.FQlS) double(scores_computator.PQlS_P) double(scores_computator.PQlS_V)];
                         
                         scores_index = scores_index + 1;
                         frequency_scores_index = frequency_scores_index + 1;
@@ -775,10 +775,10 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
         save(filename, 'frequency_threshold_scores');
         disp('Threshold scores for sampling frequency: ' + string(sample_rate) + ' saved.');
         
-        disp('Calculating Ideal Scores for samling frequency: ' + string(sample_rate));
+        disp('Calculating Ideal Thresholds for samling frequency: ' + string(sample_rate));
         % Calculate Ideal scores
         CalculateIdealScores(final_threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate);
-        disp('Ideal Scores for samling frequency: ' + string(sample_rate) + ' calculated and saved');
+        disp('Ideal Thresholds for samling frequency: ' + string(sample_rate) + ' calculated and saved');
 
     end
     disp('All thresholds tested.');
@@ -794,8 +794,8 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
     
 
 
-function CalculateIdealScores(threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate)
-    disp('Calculating Ideal Scores...');
+function CalculateIdealThresholds(threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate)
+    disp('Calculating Ideal Thresholds...');
     
     % Calculate ideal scores
     % Must be computed per data set -- values extracted from paper
@@ -844,16 +844,16 @@ function CalculateIdealScores(threshold_scores, INPUT_DATA_NAME, final_results_d
         end
     end
     
-    disp('Ideal Scores Computed.');
+    disp('Ideal Thresholds Computed.');
     
-    disp('Saving ideal scores to file...');
+    disp('Saving ideal Thresholds to file...');
     % Now need to write best scores to file
     resultTime = ResultsTime();
     filename = final_results_directory_name + resultTime + '-f' + string(sample_rate) + '-' + INPUT_DATA_NAME + '-best.mat';
     save(filename, 'minimum_distance', 'best_saccade_threshold', 'best_dispersion_threshold', 'best_duration_threshold', ...
         'best_pqns', 'best_fqns', 'best_sqns', 'best_misfix', 'best_fqls');
     
-    disp('Ideal scores saved.');
+    disp('Ideal Thresholds saved.');
 
 function [resultTime] = ResultsTime()
     time = clock;
