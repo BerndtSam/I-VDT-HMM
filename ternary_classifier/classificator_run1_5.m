@@ -799,48 +799,61 @@ function CalculateIdealThresholds(threshold_scores, INPUT_DATA_NAME, final_resul
     
     % Calculate ideal scores
     % Must be computed per data set -- values extracted from paper
-    IDEAL_PQNS = 52;
-    IDEAL_FQNS = 83.9;
-    IDEAL_SQNS = 100;
-    IDEAL_MISFIX = 7.1;
-    IDEAL_FQLS = 0.5;
+    % Should input as a vector parameter into function and calculate
+    % outside of function
+    IDEAL_PQnS = 52;
+    IDEAL_FQnS = 83.9;
+    IDEAL_SQnS = 100;
+    IDEAL_MisFix = 7.1;
+    IDEAL_FQlS = 0.5;
+    IDEAL_PQlS_P = 0;
+    IDEAL_PQlS_V = 0;
     
-    SACCADE_THRESHOLD_INDEX = 1;
-    DISPERSION_INDEX = 2;
-    DURATION_INDEX = 3;
-    PQNS = 4;
-    FQNS = 5;
-    SQNS = 6;
-    MISFIX = 7;
-    FQLS = 8;
+    SACCADE_THRESHOLD_INDEX = 4;
+    DISPERSION_INDEX = 5;
+    DURATION_INDEX = 6;
+    PQnS_INDEX = 7;
+    FQnS_INDEX = 8;
+    SQnS_INDEX = 9;
+    MisFix_INDEX = 10;
+    FQlS_INDEX = 11;
+    PQlS_P_INDEX = 12;
+    PQlS_V_INDEX = 13;
+    
     
     best_saccade_threshold = 0;
     best_dispersion_threshold = 0;
     best_duration_threshold = 0;
     minimum_distance = 1000;
-    best_pqns = 0;
-    best_fqns = 0;
-    best_sqns = 0;
-    best_misfix = 0;
-    best_fqls = 0;
+    best_PQnS = 0;
+    best_FQnS = 0;
+    best_SQnS = 0;
+    best_MisFix = 0;
+    best_FQlS = 0;
+    best_PQlS_P = 0;
+    best_PQlS_V = 0;
     
     for index=1:size(threshold_scores, 1)
-        distance = sqrt(abs(threshold_scores(index, PQNS) - IDEAL_PQNS)^2 + ...
-            abs(threshold_scores(index, FQNS) - IDEAL_FQNS)^2 + ...
-            abs(threshold_scores(index, SQNS) - IDEAL_SQNS)^2 + ...
-            abs(threshold_scores(index, MISFIX) - IDEAL_MISFIX)^2 + ...
-            abs(threshold_scores(index, FQLS) - IDEAL_FQLS)^2);
+        distance = sqrt(abs(threshold_scores(index, PQnS_INDEX) - IDEAL_PQnS)^2 + ...
+            abs(threshold_scores(index, FQnS_INDEX) - IDEAL_FQnS)^2 + ...
+            abs(threshold_scores(index, SQnS_INDEX) - IDEAL_SQnS)^2 + ...
+            abs(threshold_scores(index, MisFix_INDEX) - IDEAL_MisFix)^2 + ...
+            abs(threshold_scores(index, FQlS_INDEX) - IDEAL_FQlS)^2 + ...
+            abs(threshold_scores(index, PQlS_P_INDEX) - IDEAL_PQlS_P)^2 + ...
+            abs(threshold_scores(index, PQlS_V_INDEX) - IDEAL_PQlS_V)^2);
         
         if distance < minimum_distance
             minimum_distance = distance;
             best_saccade_threshold = threshold_scores(index, SACCADE_THRESHOLD_INDEX);
             best_dispersion_threshold = threshold_scores(index, DISPERSION_INDEX);
             best_duration_threshold = threshold_scores(index, DURATION_INDEX);
-            best_pqns = threshold_scores(index, PQNS);
-            best_fqns = threshold_scores(index, FQNS);
-            best_sqns = threshold_scores(index, SQNS);
-            best_misfix = threshold_scores(index, MISFIX);
-            best_fqls = threshold_scores(index, FQLS);
+            best_PQnS = threshold_scores(index, PQnS_INDEX);
+            best_FQnS = threshold_scores(index, FQnS_INDEX);
+            best_SQnS = threshold_scores(index, SQnS_INDEX);
+            best_MisFix = threshold_scores(index, MisFix_INDEX);
+            best_FQlS = threshold_scores(index, FQlS_INDEX);
+            best_PQlS_P = threshold_scores(index, PQlS_P_INDEX);
+            best_PQlS_V = threshold_scores(index, PQlS_V_INDEX);
         end
     end
     
@@ -851,7 +864,7 @@ function CalculateIdealThresholds(threshold_scores, INPUT_DATA_NAME, final_resul
     resultTime = ResultsTime();
     filename = final_results_directory_name + resultTime + '-f' + string(sample_rate) + '-' + INPUT_DATA_NAME + '-best.mat';
     save(filename, 'minimum_distance', 'best_saccade_threshold', 'best_dispersion_threshold', 'best_duration_threshold', ...
-        'best_pqns', 'best_fqns', 'best_sqns', 'best_misfix', 'best_fqls');
+        'best_PQnS', 'best_FQnS', 'best_SQnS', 'best_MisFix', 'best_FQlS', 'best_PQlS_P', 'best_PQlS_V');
     
     disp('Ideal Thresholds saved.');
 
