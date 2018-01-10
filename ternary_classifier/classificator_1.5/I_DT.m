@@ -29,6 +29,8 @@ function [ noiseless_eye_record ] = I_DT( dispersion_threshold, duration_thresho
             end
         end
 
+        
+        
         % Check the current window for max and min
         for i=first_index:end_index
             if noiseless_eye_record(i).x > max_x
@@ -40,7 +42,7 @@ function [ noiseless_eye_record ] = I_DT( dispersion_threshold, duration_thresho
         end
 
 
-        if max_x - min_x > dispersion_threshold
+        if abs(max_x - min_x) > dispersion_threshold
             % If this holds, first point is SP
             noiseless_eye_record(index).xy_movement_EMD = 3;
             newWindow = true;
@@ -49,9 +51,9 @@ function [ noiseless_eye_record ] = I_DT( dispersion_threshold, duration_thresho
             for i=first_index:end_index
                 noiseless_eye_record(i).xy_movement_EMD = 1;
             end
-
+            
             % Now we can do one point at a time
-            while max_x - min_x <= dispersion_threshold
+            while abs(max_x - min_x) <= dispersion_threshold
                 noiseless_eye_record(end_index).xy_movement_EMD = 1;
 
                 % Add one point to the window
@@ -65,19 +67,13 @@ function [ noiseless_eye_record ] = I_DT( dispersion_threshold, duration_thresho
 
                 % See if that point is greater than max or less than
                 % min
-                try
-                    if noiseless_eye_record(end_index).x > max_x
-                        max_x = noiseless_eye_record(end_index).x;
-                    end
-                    if noiseless_eye_record(end_index).x < min_x
-                        min_x = noiseless_eye_record(end_index).x;
-                    end
-                catch
-                    disp('yest');
-                    disp(length(noiseless_eye_record));
-                    disp(end_index);
-                    break
+                if noiseless_eye_record(end_index).x > max_x
+                    max_x = noiseless_eye_record(end_index).x;
                 end
+                if noiseless_eye_record(end_index).x < min_x
+                    min_x = noiseless_eye_record(end_index).x;
+                end
+
             end
 
             % When this ends, we know that the end index is a SP
