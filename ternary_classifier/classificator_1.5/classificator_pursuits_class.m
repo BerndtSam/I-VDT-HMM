@@ -24,13 +24,15 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
 
 % Classification function
         function classify(obj, test_thresholds, saccade_threshold, dispersion_threshold, duration_threshold, sample_rate)
-            if( obj.debug_mode ~= 0)
+            visualize_output = false;
+
+            if( obj.debug_mode ~= 0 && visualize_output == true)
                 fprintf(strcat('Begin data classification with user classifier in :',datestr(now),'\n'));
             end
 
 %% Define Global Variables
             eye_record_length = length(obj.eye_records);
-            
+                        
             if exist('test_thresholds')                
                 % I-VT variables
                 SACCADE_DETECTION_THRESHOLD_DEG_SEC = saccade_threshold;
@@ -67,14 +69,20 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
             EPSILON_P_SDEV = 0.0000001;
 
 %% I-VT to classify Saccades from Fixations/SP
-            disp('Beginning I-VT to separate saccades from fixations and smooth pursuits...');
+            if visualize_output == true
+                disp('Beginning I-VT to separate saccades from fixations and smooth pursuits...');
+            end 
             
             obj = I_VT(obj, SACCADE_DETECTION_THRESHOLD_DEG_SEC);
             
-            disp('Finished I-VT classification.');
-
+            if visualize_output == true
+                disp('Finished I-VT classification.');
+            end
+            
 %% Create new Eye Record for classification
-            disp('Creating new eye record for classification...');
+            if visualize_output == true
+                disp('Creating new eye record for classification...');
+            end
             
             eye_record = initialize_eye_record(eye_record_length);
         
@@ -85,12 +93,15 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
                 eye_record(i).xy_movement_EMD = obj.eye_records(i, obj.MOV_TYPE);
             end
             
-            disp('Eye record created.');
+            if visualize_output == true
+                disp('Eye record created.');
+            end
             
 %% I-HMM to seperate Saccades from fixations/SP
-
-            disp('Beginning I-HMM to separate saccades from fixations and smooth pursuits...');
-        
+            if visualize_output == true
+                disp('Beginning I-HMM to separate saccades from fixations and smooth pursuits...');
+            end
+            
             non_classifications = [4];
             noiseless_eye_record = CreateNoiselessEyeRecord(eye_record, non_classifications);
             
@@ -239,11 +250,16 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
             % Put classifications back in eye_record so that noise is accounted for
             eye_record = UpdateClassifications(noiseless_eye_record, eye_record, non_classifications);
 
-            disp('Binary I-HMM Completed');
-        
+            
+            if visualize_output == true
+                disp('Binary I-HMM Completed');
+            end
+            
 %% Implement I-DT of Fixations vs SP
-            disp('Beginning I-DT to separate fixations from smooth pursuits...');
-
+            if visualize_output == true
+                disp('Beginning I-DT to separate fixations from smooth pursuits...');
+            end
+            
             non_classifications = [2, 4];
             noiseless_eye_record = CreateNoiselessEyeRecord(eye_record, non_classifications);
 
@@ -251,11 +267,14 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
 
             eye_record = UpdateClassifications(noiseless_eye_record, eye_record, non_classifications);
 
-            disp('I-DT Completed');
-        
+            if visualize_output == true
+                disp('I-DT Completed');
+            end    
  %% Implement 3 state HMM to seperate Saccades From Fixations From Smooth Pursuits
-            disp('Beginning I-HMM to separate saccades from fixations from smooth pursuits...');
-    
+            if visualize_output == true
+                disp('Beginning I-HMM to separate saccades from fixations from smooth pursuits...');
+            end
+            
             non_classifications = [4];
     
             noiseless_eye_record = CreateNoiselessEyeRecord(eye_record, non_classifications);
@@ -486,11 +505,16 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
             end
 
             UpdateClassifications(noiseless_eye_record, eye_record, non_classifications);
-
-            disp('Ternary I-HMM completed');
-                                            
+            
+            if visualize_output == true
+                disp('Ternary I-HMM completed');
+            end
+            
 %% Merge back into reporting eye record
-            disp('Merging data into reporting eye record...');
+            if visualize_output == true
+                disp('Merging data into reporting eye record...');
+            end
+            
             for i=1:eye_record_length            
                 try
                     obj.eye_records(i,obj.MOV_TYPE ) = eye_record(i).xy_movement_EMD;
@@ -502,9 +526,11 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
             % Ensure noise is put back in the correct place
             obj.eye_records( (obj.eye_records(:,obj.VALIDITY) == obj.DATA_INVALID),obj.MOV_TYPE ) = obj.NOISE_TYPE; 
         
-            disp('Merge completed');
+            if visualize_output == true
+                disp('Merge completed');
+            end
             
-            if(obj.debug_mode ~= 0)
+            if(obj.debug_mode ~= 0 && visualize_output == true)
                 fprintf(strcat('Complete data classification with user classifier in :',datestr(now),'\n'));
             end
         end
