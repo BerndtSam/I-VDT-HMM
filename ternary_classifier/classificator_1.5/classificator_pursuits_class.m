@@ -31,7 +31,7 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
 %% Define Global Variables
             eye_record_length = length(obj.eye_records);
             
-            if exist('test_thresholds')
+            if exist('test_thresholds')                
                 % I-VT variables
                 SACCADE_DETECTION_THRESHOLD_DEG_SEC = saccade_threshold;
 
@@ -39,12 +39,14 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
                 DISPERSION_THRESHOLD = dispersion_threshold;
                 DURATION_THRESHOLD = floor(duration_threshold/sample_rate);
             else
+                sample_rate = 1000/obj.sample_rate;
+
                 % I-VT variables
                 SACCADE_DETECTION_THRESHOLD_DEG_SEC = 150;
 
                 % I-DT variables
                 DISPERSION_THRESHOLD = .5;
-                DURATION_THRESHOLD = 150;
+                DURATION_THRESHOLD = floor(150/sample_rate);
             end
             
             % HMM Variables
@@ -64,11 +66,6 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
             EPSILON_F_SDEV = 0.0000001;
             EPSILON_P_SDEV = 0.0000001;
 
- %% Subsample frequency           
-            
-%% Test thresholds
-
-            
 %% I-VT to classify Saccades from Fixations/SP
             disp('Beginning I-VT to separate saccades from fixations and smooth pursuits...');
             

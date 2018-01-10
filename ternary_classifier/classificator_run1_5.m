@@ -687,7 +687,7 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
     end
     INPUT_DATA_FILE = temp_INPUT_DATA_FILE;
     INPUT_DATA_FILE = split(INPUT_DATA_FILE, '.');
-    INPUT_DATA_FILE = string(INPUT_DATA_FILE(1)) + string(INPUT_DATA_FILE(2));
+    INPUT_DATA_FILE = string(INPUT_DATA_FILE(1)) + '.' + string(INPUT_DATA_FILE(2));
     
     INPUT_DATA_NAME = split(MODEL_SETTINGS.READER.INPUT_DATA_NAME, '/');
     INPUT_DATA_NAME = INPUT_DATA_NAME(length(INPUT_DATA_NAME));
@@ -699,7 +699,7 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
     
     normal_rate = MODEL_SETTINGS.READER.SAMPLE_RATE;
     %sample_rates = [10 20 30 50 60 100 200 300 500 600 1000];
-    sample_rates = [500 1000];
+    sample_rates = [20 30 50];
     final_threshold_scores = [];
     scores_index = 1;
     for sample_index=1:length(sample_rates)
@@ -707,7 +707,9 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
         frequency_scores_index = 1;
         sample_rate = sample_rates(sample_index);
         classificator{classifier_index}.sample_rate = sample_rate;
+        classificator{classifier_index}.delta_t_sec = 1/sample_rate;
         classificator{classifier_index}.input_data_name = INPUT_DATA_FILE + '_' + string(sample_rate) + '.txt';
+        classificator{classifier_index}.header_count =                 MODEL_SETTINGS.READER.HEADER_COUNT; 
         classificator{classifier_index}.read_data();
         % 50:250, 1:500, 75:300
         for saccade_threshold=150:152            
@@ -731,14 +733,15 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
                     if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0 || MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
     % Hardcoded parameters for provided input files
                         scores_computator = scores_computation_class;
-                        scores_computator.read_stimulus_data( MODEL_SETTINGS.READER.INPUT_DATA_NAME, 13, 14, 1, 14);
+                        %scores_computator.read_stimulus_data( MODEL_SETTINGS.READER.INPUT_DATA_NAME, 13, 14, 1, 14);
+                        scores_computator.read_stimulus_data( classificator{classifier_index}.input_data_name, 13, 14, 1, 14);
                         scores_computator.eye_records = classificator{classifier_index}.eye_records;
                         scores_computator.saccade_records = classificator{classifier_index}.saccade_records;
                         scores_computator.fixation_records = classificator{classifier_index}.fixation_records;
                         scores_computator.noise_records = classificator{classifier_index}.noise_records;
                         scores_computator.pursuit_records = classificator{classifier_index}.pursuit_records;
                         scores_computator.sample_rate = sample_rate;
-                        scores_computator_delta_t_sec = floor(1/sample_rate);
+                        scores_computator.delta_t_sec = 1/sample_rate;
                         %scores_computator.sample_rate = classificator{classifier_index}.sample_rate;
                         %scores_computator.delta_t_sec = classificator{classifier_index}.delta_t_sec;
                     end
@@ -749,13 +752,15 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
                         ClassificationEndTime = clock;
                         
                         AlgorithmRunTime = AlgorithmEndTime - AlgorithmStartTime;
+                        AlgorithmRunTime = 60*AlgorithmRunTime(5) + AlgorithmRunTime(6);
                         ClassificationRunTime = ClassificationEndTime - AlgorithmStartTime;
+                        ClassificationRunTime = 60*ClassificationRunTime(5) + ClassificationRunTime(6);
                         % Add PQLS_V and PQLS_P, ideal scores are 0
-                        frequency_threshold_scores(frequency_scores_index, :) = [double(sample_rate) double(AlgorithmRunTime(6)) double(ClassificationRunTime(6)) ...
+                        frequency_threshold_scores(frequency_scores_index, :) = [double(sample_rate) double(AlgorithmRunTime) double(ClassificationRunTime) ...
                             double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
                             double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
                             double(scores_computator.MisFix) double(scores_computator.FQlS) double(scores_computator.PQlS_P) double(scores_computator.PQlS_V)];
-                        final_threshold_scores(scores_index, :) = [double(sample_rate) double(AlgorithmRunTime(6)) double(ClassificationRunTime(6)) ...
+                        final_threshold_scores(scores_index, :) = [double(sample_rate) double(AlgorithmRunTime) double(ClassificationRunTime) ...
                             double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
                             double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
                             double(scores_computator.MisFix) double(scores_computator.FQlS) double(scores_computator.PQlS_P) double(scores_computator.PQlS_V)];
