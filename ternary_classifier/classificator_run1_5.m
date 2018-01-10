@@ -698,8 +698,8 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
     final_results_directory_name = 'Results/FinalResults/';
     
     normal_rate = MODEL_SETTINGS.READER.SAMPLE_RATE;
-    %sample_rates = [10 20 30 50 60 100 200 300 500 600 1000];
-    sample_rates = [20 30 50];
+    sample_rates = [20 30 50 60 100 200 300 500 600 1000];
+    % sample_rates = [20 30 50];
     final_threshold_scores = [];
     scores_index = 1;
     for sample_index=1:length(sample_rates)
@@ -724,7 +724,8 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
         
         % Full threshold test: 50:250, 1:500, 75:300
         % Partial Threshold Test: 75:5:175, 10:10:150, 100:10:200
-        for saccade_threshold=75:5:175            
+        for saccade_threshold=75:5:175  
+            disp('Testing saccade threshold: '+ string(saccade_threshold) + ' on frequency: ' + string(sample_rate));
             for dispersion_threshold=10:10:150
                 for duration_threshold=100:10:200
 
