@@ -719,6 +719,9 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
 
         IdealScores(scores_computator.stimulus_records, subsample_ratio);
   
+        disp('Testing threshold scores for sampling frequency: ' + string(sample_rate));
+
+        
         % 50:250, 1:500, 75:300
         for saccade_threshold=155:155            
             for dispersion_threshold=50:50
