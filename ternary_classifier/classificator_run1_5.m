@@ -583,7 +583,7 @@ set( findobj('Tag','Execute_Classification_Button'), 'Enable', 'On');
 
 
 % ========== Real execution of classification models  END ===================
-function Run_Thresholding_Classifier(hObject, InputFile, classifier_index)
+function Run_Thresholding_Classifier(hObject, InputFile, classifier_index, sample_rates)
         
         clc;
         path(path,'classificator_1.5');
@@ -659,7 +659,7 @@ function Run_Thresholding_Classifier(hObject, InputFile, classifier_index)
             end
             classificator{classifier_index}.eye_tracker_data_filter_degree_range();
             
-            TestThresholds(classificator, MODEL_SETTINGS, classifier_index);
+            TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_rates);
 
             
             classificator{classifier_index}.basename_output_filename =     strcat(MODEL_SETTINGS.OUTPUT.BASENAME_OUTPUT_FILENAME,char(method_str{classifier_index}));
@@ -669,7 +669,7 @@ function Run_Thresholding_Classifier(hObject, InputFile, classifier_index)
         end
 
 
-function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
+function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_rates)
     disp('Testing thresholds...');
    
     INPUT_DATA_FILE = MODEL_SETTINGS.READER.INPUT_DATA_NAME;
@@ -698,7 +698,7 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
     final_results_directory_name = 'Results/FinalResults/';
     
     normal_rate = MODEL_SETTINGS.READER.SAMPLE_RATE;
-    sample_rates = [20 30 50 60 100 200 300 500 600 1000];
+    % sample_rates = [20 30 50 60 100 200 300 500 600 1000];
     % sample_rates = [20 30 50];
     final_threshold_scores = [];
     scores_index = 1;
@@ -721,10 +721,10 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
   
         disp('Testing threshold scores for sampling frequency: ' + string(sample_rate));
 
-        
-        % Full threshold test: 50:250, 1:500, 75:300
+        % Test Threshold: 150:155, 50:50, 150:150 
         % Partial Threshold Test: 75:5:175, 10:10:150, 100:10:200
-        for saccade_threshold=75:5:175  
+        % Full threshold Test: 50:250, 1:500, 75:300
+        for saccade_threshold=75:5:175 
             disp('Testing saccade threshold: '+ string(saccade_threshold) + ' on frequency: ' + string(sample_rate));
             for dispersion_threshold=10:10:150
                 for duration_threshold=100:10:200
