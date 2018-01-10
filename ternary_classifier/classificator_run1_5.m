@@ -722,10 +722,11 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
         disp('Testing threshold scores for sampling frequency: ' + string(sample_rate));
 
         
-        % 50:250, 1:500, 75:300
-        for saccade_threshold=155:155            
-            for dispersion_threshold=50:50
-                for duration_threshold=150:150
+        % Full threshold test: 50:250, 1:500, 75:300
+        % Partial Threshold Test: 75:5:175, 10:10:150, 100:10:200
+        for saccade_threshold=75:5:175            
+            for dispersion_threshold=10:10:150
+                for duration_threshold=100:10:200
 
                     AlgorithmStartTime = clock;
                     classificator{classifier_index}.classify(true, saccade_threshold, double(dispersion_threshold/100), duration_threshold, subsample_ratio);
@@ -744,7 +745,6 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index)
                     end
                     if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0 || MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
     % Hardcoded parameters for provided input files
-                        %scores_computator.read_stimulus_data( MODEL_SETTINGS.READER.INPUT_DATA_NAME, 13, 14, 1, 14);
                         scores_computator = scores_computation_class;
                         scores_computator.read_stimulus_data( classificator{classifier_index}.input_data_name, 13, 14, 1, 14);
                         scores_computator.eye_records = classificator{classifier_index}.eye_records;
@@ -816,7 +816,7 @@ function CalculateIdealThresholds(threshold_scores, INPUT_DATA_NAME, final_resul
     IDEAL_FQnS = 83.9;
     IDEAL_SQnS = 100;
     IDEAL_MisFix = 7.1;
-    IDEAL_FQlS = 0.5;
+    IDEAL_FQlS = 0;
     IDEAL_PQlS_P = 0;
     IDEAL_PQlS_V = 0;
     
