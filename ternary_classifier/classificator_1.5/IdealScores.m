@@ -105,8 +105,10 @@ function [ideal_fqns] = GetIdealFQnS(stimulus_records, subsample_ratio)
         
     end
     
+    % Multiplied by subsample ratio to put into ms
     D_stim_fix_dur = D_stim_fix_dur * subsample_ratio;
     
+    % Pulled from ternary classification
     ideal_fqns = 100 * (1-((m*Sl + k*Pl + D_sac_dur)/(D_stim_fix_dur)));
 end
 
@@ -144,6 +146,7 @@ function [ideal_pqns, Pl, Dcor_sac_dur] = GetIdealPQnS(stimulus_records, subsamp
             % + 1 and + 2 due to ramp up speed
             pursuit_speed = (1000/subsample_ratio) * abs(stimulus_records(stimulus+1,1) - stimulus_records(stimulus+2,1));
                
+            % Latency estimation pulled from Ternary Classification
             if pursuit_speed < 20
                 latency = 0;
             elseif pursuit_speed < 30
@@ -160,11 +163,13 @@ function [ideal_pqns, Pl, Dcor_sac_dur] = GetIdealPQnS(stimulus_records, subsamp
             
             % Saccade amplitude needed to catch up from the delay
             Sac_amp_required = latency * pursuit_speed / 1000;
+            % Pulled from automated classification
             sac_dur = 2.2*Sac_amp_required + 21;
             Dcor_sac_dur = Dcor_sac_dur + sac_dur; 
     
         end
         
+        % If the current stimulus is a pursuit
         if current_stimulus_classification == 3
             Dstim_pur_dur = Dstim_pur_dur + 1;            
         end
@@ -175,8 +180,10 @@ function [ideal_pqns, Pl, Dcor_sac_dur] = GetIdealPQnS(stimulus_records, subsamp
     % Calculation pulled from ternary classification paper
     Pl = average_latency/n;
         
+    % Multiplied by subsample ratio so everything is in ms
     Dstim_pur_dur = Dstim_pur_dur*subsample_ratio;
     
+    % Pulled from ternary classification
     ideal_pqns = 100 * (1 - ((n * Pl + Dcor_sac_dur)/(Dstim_pur_dur)));
 end
 
@@ -218,18 +225,22 @@ function [ideal_misfix] = GetIdealMisFix(stimulus_records, subsample_ratio, purs
         previous_stimulus_classification = stimulus_records(stimulus-1, 4);
         current_stimulus_classification = stimulus_records(stimulus, 4);
         
+        % If this is the onset of a pursuit
         if current_stimulus_classification == 3 && previous_stimulus_classification ~= 3
             n = n + 1;
         end
         
+        % if this is a fixation
         if current_stimulus_classification == 1
             Dstim_fix_dur = Dstim_fix_dur + 1;
         end
         
     end
     
+    % Multiplied by subsample ratio to put in terms of ms
     Dstim_fix_dur = Dstim_fix_dur * subsample_ratio;
     
+    % Pulled from ternary classification
     ideal_misfix = 100 * ((n * Plt + Dcor_sac_dur)/(Dstim_fix_dur));
 
 end
