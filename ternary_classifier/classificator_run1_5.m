@@ -715,9 +715,7 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_
         
         scores_computator = scores_computation_class;
         scores_computator.read_stimulus_data( classificator{classifier_index}.input_data_name, 13, 14, 1, 14);
-
-        IdealScores(scores_computator.stimulus_records, subsample_ratio);
-  
+        
         disp('Testing threshold scores for sampling frequency: ' + string(sample_rate));
 
         % Test Threshold: 150:155, 50:50, 150:150 
@@ -787,8 +785,11 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_
         disp('Threshold scores for sampling frequency: ' + string(sample_rate) + ' saved.');
         
         disp('Calculating Ideal Thresholds for samling frequency: ' + string(sample_rate));
+        
         % Calculate Ideal scores
-        CalculateIdealThresholds(frequency_threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate);
+        ideal_scores = IdealScores(scores_computator.stimulus_records, subsample_ratio);
+        
+        CalculateIdealThresholds(ideal_scores, frequency_threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate);
         disp('Ideal Thresholds for samling frequency: ' + string(sample_rate) + ' calculated and saved');
 
     end
@@ -805,20 +806,28 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_
     
 
 
-function CalculateIdealThresholds(threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate)
+function CalculateIdealThresholds(ideal_scores, threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate)
     disp('Calculating Ideal Thresholds...');
     
-    % Calculate ideal scores
-    % Must be computed per data set -- values extracted from paper
-    % Should input as a vector parameter into function and calculate
-    % outside of function
-    IDEAL_PQnS = 52;
-    IDEAL_FQnS = 83.9;
-    IDEAL_SQnS = 100;
-    IDEAL_MisFix = 7.1;
-    IDEAL_FQlS = 0;
-    IDEAL_PQlS_P = 0;
-    IDEAL_PQlS_V = 0;
+    % Attempt to fetch ideal_scores
+    try
+        IDEAL_FQnS = ideal_scores(1,1);
+        IDEAL_SQnS = ideal_scores(1,2);
+        IDEAL_PQnS = ideal_scores(1,3);
+        IDEAL_FQlS = ideal_scores(1,4);
+        IDEAL_MisFix = ideal_scores(1,5);
+        IDEAL_PQlS_P = ideal_scores(1,6);
+        IDEAL_PQlS_V = ideal_scores(1,7);
+    catch
+        % Pulled from ternary classification paper
+        IDEAL_PQnS = 52;
+        IDEAL_FQnS = 83.9;
+        IDEAL_SQnS = 100;
+        IDEAL_MisFix = 7.1;
+        IDEAL_FQlS = 0;
+        IDEAL_PQlS_P = 0;
+        IDEAL_PQlS_V = 0;
+    end
     
     SACCADE_THRESHOLD_INDEX = 4;
     DISPERSION_INDEX = 5;
@@ -830,7 +839,6 @@ function CalculateIdealThresholds(threshold_scores, INPUT_DATA_NAME, final_resul
     FQlS_INDEX = 11;
     PQlS_P_INDEX = 12;
     PQlS_V_INDEX = 13;
-    
     
     best_saccade_threshold = 0;
     best_dispersion_threshold = 0;
