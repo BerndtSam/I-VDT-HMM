@@ -12,8 +12,8 @@ function [ ideal_behavioral_scores ] = IdealScores( stimulus_records, subsample_
     IDEAL_FQnS = GetIdealFQnS(stimulus_records, subsample_ratio);
     IDEAL_SQnS = GetIdealSQnS();
     IDEAL_PQnS = GetIdealPQnS(stimulus_records, subsample_ratio);
-    IDEAL_PQlS_V = 0;
-    IDEAL_PQlS_P = 0;
+    IDEAL_PQlS_P = GetIdealPQlS_P();
+    IDEAL_PQlS_V = GetIdealPQlS_V();
     IDEAL_MisFix = 7.1;
     IDEAL_FQlS = 0.5;
     
@@ -188,3 +188,14 @@ function [ideal_pqns] = GetIdealPQnS(stimulus_records, subsample_ratio)
     
     ideal_pqns = 100 * (1 - ((n * Pl + Dcor_sac_dur)/(Dstim_pur_dur)));
 end
+
+function [ideal_pqls_v] = GetIdealPQlS_V()
+    % Gathered from paper, Ternary Classifier
+    ideal_pqls_v = 0;
+end
+
+function [ideal_pqls_v] = GetIdealPQlS_P()
+    % Gathered from paper, Ternary Classifier
+    ideal_pqls_v = 0;
+end
+
