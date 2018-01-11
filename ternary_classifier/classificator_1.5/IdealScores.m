@@ -1,21 +1,22 @@
 function [ ideal_behavioral_scores ] = IdealScores( stimulus_records, subsample_ratio )
 % Calculate the ideal behavioral scores
 
+% Collected from papers
 %     IDEAL_PQNS = 52;
 %     IDEAL_PQLS_V = 0;
 %     IDEAL_PQLS_P = 0;
 %     IDEAL_FQNS = 83.9;
 %     IDEAL_SQNS = 100;
 %     IDEAL_MISFIX = 7.1;
-%     IDEAL_FQLS = 0.5;
+%     IDEAL_FQLS = 0;
         
     IDEAL_FQnS = GetIdealFQnS(stimulus_records, subsample_ratio);
     IDEAL_SQnS = GetIdealSQnS();
-    IDEAL_PQnS = GetIdealPQnS(stimulus_records, subsample_ratio);
+    [IDEAL_PQnS, pursuit_latency, cor_sac_dur] = GetIdealPQnS(stimulus_records, subsample_ratio);
     IDEAL_PQlS_P = GetIdealPQlS_P();
     IDEAL_PQlS_V = GetIdealPQlS_V();
-    IDEAL_MisFix = 7.1;
-    IDEAL_FQlS = 0.5;
+    IDEAL_MisFix = GetIdealMisFix(stimulus_records, subsample_ratio, pursuit_latency, cor_sac_dur);
+    IDEAL_FQlS = GetIdealFQlS();
     
     ideal_behavioral_scores = [IDEAL_FQnS, IDEAL_SQnS, IDEAL_PQnS, ...
         IDEAL_FQlS, IDEAL_MisFix, IDEAL_PQlS_P, IDEAL_PQlS_V];
@@ -114,7 +115,7 @@ function [ideal_sqns] = GetIdealSQnS()
     ideal_sqns = 100;
 end
 
-function [ideal_pqns] = GetIdealPQnS(stimulus_records, subsample_ratio)
+function [ideal_pqns, Pl, Dcor_sac_dur] = GetIdealPQnS(stimulus_records, subsample_ratio)
 % where n is the number of stimulus pursuits, Dstim pur duri is duration of 
 % the ith stimulus pursuit, Pl is pursuit?s latency prior to the onset of 
 % the corrective saccade that brings the fovea to the target, and 
@@ -126,13 +127,13 @@ function [ideal_pqns] = GetIdealPQnS(stimulus_records, subsample_ratio)
     % Dstim pur dur is duration of the ith stimulus pursuit
     Dstim_pur_dur = 0;
     
-    % Sum of Pursuit Speed, to be divided by n to calculate average speed
-    % of saccades. Will then reference TernaryClassification paper to
-    % determine Pl
-    SPs = 0;
-    
     % Dcor_sac_dur is expected duration of corrective saccade
     Dcor_sac_dur = 0;
+    
+    % Sum of pursuit latency, to be divided by n to calculate average
+    % latency of catchup saccades. Will then reference TernaryClassification paper to
+    % determine Pl
+    average_latency = 0;
     
     for stimulus=2:length(stimulus_records)
         previous_stimulus_classification = stimulus_records(stimulus-1, 4);
@@ -144,23 +145,24 @@ function [ideal_pqns] = GetIdealPQnS(stimulus_records, subsample_ratio)
             pursuit_speed = (1000/subsample_ratio) * abs(stimulus_records(stimulus+1,1) - stimulus_records(stimulus+2,1));
                
             if pursuit_speed < 20
-                catchupSaccadeLength = 0;
+                latency = 0;
             elseif pursuit_speed < 30
-                catchupSaccadeLength = 230;
+                latency = 230;
             elseif pursuit_speed < 40
-                catchupSaccadeLength = 210;
+                latency = 210;
             elseif pursuit_speed < 50
-                catchupSaccadeLength = 180;
+                latency = 180;
             else
-                catchupSaccadeLength = 210;
+                latency = 210;
             end
             
+            average_latency = average_latency + latency;
+            
             % Saccade amplitude needed to catch up from the delay
-            Sac_amp_required = catchupSaccadeLength * pursuit_speed / 1000;
+            Sac_amp_required = latency * pursuit_speed / 1000;
             sac_dur = 2.2*Sac_amp_required + 21;
             Dcor_sac_dur = Dcor_sac_dur + sac_dur; 
-
-            SPs = SPs + pursuit_speed;
+    
         end
         
         if current_stimulus_classification == 3
@@ -171,18 +173,7 @@ function [ideal_pqns] = GetIdealPQnS(stimulus_records, subsample_ratio)
         
     % Pl = pursuit latency prior to onset of corrective saccade
     % Calculation pulled from ternary classification paper
-    SPs = SPs / n;
-    if SPs < 20
-        Pl = 0;
-    elseif SPs < 30
-        Pl = 230;
-    elseif SPs < 40
-        Pl = 210;
-    elseif SPs < 50
-        Pl = 180;
-    else
-        Pl = 210;
-    end
+    Pl = average_latency/n;
         
     Dstim_pur_dur = Dstim_pur_dur*subsample_ratio;
     
@@ -199,3 +190,46 @@ function [ideal_pqls_v] = GetIdealPQlS_P()
     ideal_pqls_v = 0;
 end
 
+function [ideal_fqls] = GetIdealFQlS()
+    % Gathered from paper, Standardized automated analysis
+    ideal_fqls = 0;
+end
+
+function [ideal_misfix] = GetIdealMisFix(stimulus_records, subsample_ratio, pursuit_duration_latency, cor_sac_dur)
+% where n is the number of SP present in the stimuli, average 
+% duration of the latency of the termination phase, Plt, prior 
+% to the last corrective saccade leading to fixational stimulus position. 
+% Dcor sac durj is duration of the corrective saccade, if present. 
+% In calculation of the Ideal MisFix, we assumed that each stimulus SP 
+% is followed by a stimulus fixation.    
+
+    % n is number of SP present in stimuli
+    n = 0;
+    
+    Plt = pursuit_duration_latency;
+    
+    % Dcor sac dur is duration of the corrective saccade
+    Dcor_sac_dur = cor_sac_dur;
+    
+    % Dstim_fix_dur is duration of fixation stimulus
+    Dstim_fix_dur = 0;
+    
+    for stimulus=2:length(stimulus_records)
+        previous_stimulus_classification = stimulus_records(stimulus-1, 4);
+        current_stimulus_classification = stimulus_records(stimulus, 4);
+        
+        if current_stimulus_classification == 3 && previous_stimulus_classification ~= 3
+            n = n + 1;
+        end
+        
+        if current_stimulus_classification == 1
+            Dstim_fix_dur = Dstim_fix_dur + 1;
+        end
+        
+    end
+    
+    Dstim_fix_dur = Dstim_fix_dur * subsample_ratio;
+    
+    ideal_misfix = 100 * ((n * Plt + Dcor_sac_dur)/(Dstim_fix_dur));
+
+end
