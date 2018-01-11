@@ -698,10 +698,9 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_
     final_results_directory_name = 'Results/FinalResults/';
     
     normal_rate = MODEL_SETTINGS.READER.SAMPLE_RATE;
-    % sample_rates = [20 30 50 60 100 200 300 500 600 1000];
-    % sample_rates = [20 30 50];
     final_threshold_scores = [];
     scores_index = 1;
+    
     for sample_index=1:length(sample_rates)
         frequency_threshold_scores = [];
         frequency_scores_index = 1;
