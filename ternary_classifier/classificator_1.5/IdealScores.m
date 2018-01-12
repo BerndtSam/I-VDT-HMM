@@ -62,8 +62,9 @@ function [ideal_fqns] = GetIdealFQnS(stimulus_records, subsample_ratio)
         current_stimulus_classification = stimulus_records(stimulus, 4);
         
         % If from fixation to saccade or saccade to fixation, increment m
-        if (previous_stimulus_classification == 1 && current_stimulus_classification == 2) || ...
-                previous_stimulus_classification == 2 && current_stimulus_classification == 1
+        if (previous_stimulus_classification == 1 && current_stimulus_classification == 2)
+            %|| ...
+             %   previous_stimulus_classification == 2 && current_stimulus_classification == 1
             m = m + 1;
         % If from SP to fixation, increment k
         elseif (previous_stimulus_classification == 3 && current_stimulus_classification == 1)
