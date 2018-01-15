@@ -63,8 +63,6 @@ function [ideal_fqns] = GetIdealFQnS(stimulus_records, subsample_ratio)
         
         % If from fixation to saccade or saccade to fixation, increment m
         if (previous_stimulus_classification == 1 && current_stimulus_classification == 2)
-            %|| ...
-             %   previous_stimulus_classification == 2 && current_stimulus_classification == 1
             m = m + 1;
         % If from SP to fixation, increment k
         elseif (previous_stimulus_classification == 3 && current_stimulus_classification == 1)
@@ -231,7 +229,7 @@ function [ideal_misfix] = GetIdealMisFix(stimulus_records, subsample_ratio, purs
             n = n + 1;
         end
         
-        % if this is a fixation
+        % If this is a fixation
         if current_stimulus_classification == 1
             Dstim_fix_dur = Dstim_fix_dur + 1;
         end
