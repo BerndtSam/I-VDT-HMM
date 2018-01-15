@@ -9,9 +9,11 @@ if exist(out, 'dir')
     delete(out);
 end
 
+% Creates data class
 d = DataClass(entries.data);
 
-d.reference = loadClassificationFromFile(strcat(in(1:find(in == '\', 1, 'last')), 'reviewed.csv'));
+% Loads in result data
+d.reference = loadClassificationFromFile(strcat(in(1:find(in == '/', 1, 'last')), 'reviewed.csv'));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Classification

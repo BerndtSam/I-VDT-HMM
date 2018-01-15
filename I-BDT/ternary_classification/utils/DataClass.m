@@ -5,15 +5,24 @@ classdef DataClass < handle
         % Data protocol index description
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
+%         % Time Stamp
+%         tsIdx = 2;        
+%         % Eye Valid
+%         evIdx = 10;       
+%         % X pupil coordinate
+%         xIdx = 11;        
+%         % Y pupil coordinate
+%         yIdx = 12;
+        
         % Time Stamp
         tsIdx = 2;        
         % Eye Valid
-        evIdx = 10;       
+        evIdx = 11;       
         % X pupil coordinate
-        xIdx = 11;        
+        xIdx = 8;        
         % Y pupil coordinate
-        yIdx = 12;
-        
+        yIdx = 9;
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Config
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -56,8 +65,13 @@ classdef DataClass < handle
             [rows, columns] = size(entries);
             for i=1:rows
                 eye_valid = entries(i,obj.evIdx);
+                if eye_valid == 0
+                    eye_valid = 1;
+                else
+                    eye_valid = 0;
+                end
                 ts = entries(i,obj.tsIdx) - tsOffset;
-                if eye_valid
+                if eye_valid == 1
                     x = entries(i, obj.xIdx);
                     y = entries(i, obj.yIdx);
                 else

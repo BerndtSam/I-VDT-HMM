@@ -1,0 +1,1 @@
+fixation number; onset time ms; x coordinate; y coordinate; duration ms; [(coord_x, coord_y, sample_number); ...]

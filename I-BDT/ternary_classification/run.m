@@ -1,6 +1,6 @@
 function [ d, r, gt ] = run(datasetDir, groundTruth, target, id)
 
-base = [ datasetDir '\' id '\' ];
+base = [ datasetDir '/' id '/' ];
 availableJournals = dir( [ base '*journal*.txt' ] );
 in = [ base, availableJournals(1).name ];
 out = strcat(base, target);

@@ -1,4 +1,4 @@
-function ibdt( d , maxSaccadeDuration )
+function [final_classifications] = ibdt( d , maxSaccadeDuration )
 
 % Smooth pursuit consideration window size
 windowSize = round( 1.5 * maxSaccadeDuration / (1000.0 / d.fps));
@@ -115,27 +115,29 @@ for i = 2 : length(d.v)
 
 end
 
+final_classifications = d.c;
+
 % Quick visualtization ...
-clf
-subplot(5,1,1:4)
-plot(d.v)
-hold on
-a = zeros(1, length(d.v));
-a(:) = NaN;
-a(d.reference.get(pursuit)) = -0.15;
-plot(a, 'LineWidth', 5);
-a(:) = NaN;
-a(d.c.get(pursuit)) = -0.1;
-plot(a, 'LineWidth', 5);
-legend('speed', 'groundTruth(pur)', 'algorithm(pur)')
-ylabel('speed')
-xlabel('time')
-axis( [ 0 length(d.v) -0.5 5 ] )
-subplot(5,1,5)
-plot(pursuitPosterior)
-axis( [ 0 length(d.v) -0.05 1.05 ] )
-ylabel('posterior(pur)')
-xlabel('time')
+% clf
+% subplot(5,1,1:4)
+% plot(d.v)
+% hold on
+% a = zeros(1, length(d.v));
+% a(:) = NaN;
+% a(d.reference.get(pursuit)) = -0.15;
+% plot(a, 'LineWidth', 5);
+% a(:) = NaN;
+% a(d.c.get(pursuit)) = -0.1;
+% plot(a, 'LineWidth', 5);
+% legend('speed', 'groundTruth(pur)', 'algorithm(pur)')
+% ylabel('speed')
+% xlabel('time')
+% axis( [ 0 length(d.v) -0.5 5 ] )
+% subplot(5,1,5)
+% plot(pursuitPosterior)
+% axis( [ 0 length(d.v) -0.05 1.05 ] )
+% ylabel('posterior(pur)')
+% xlabel('time')
 
 end
 

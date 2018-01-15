@@ -1,0 +1,54 @@
+################################################################################
+# LICENSE
+################################################################################
+
+Copyright (c) 2016, University of Tübingen
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for non-commercial purposes, without fee, and without a written
+agreement is hereby granted, provided that the above copyright notice and this
+paragraph and the following two paragraphs appear in all copies.
+
+IN NO EVENT SHALL THE UNIVERSITY OF TÜBINGEN BE LIABLE TO ANY PARTY FOR DIRECT,
+INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS,
+ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF
+UNIVERSITY OF TÜBINGEN HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+UNIVERSITY OF TÜBINGEN SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND
+UNIVERSITY OF TÜBINGEN HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT,
+UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
+
+
+################################################################################
+# CITATION
+################################################################################
+
+T. Santini, W. Fuhl, T. Kübler, E. Kasneci
+Bayesian Identification of Fixations, Saccades, and Smooth Pursuits
+ACM Symposium on Eye Tracking Research & Applications, ETRA 2016
+
+
+
+################################################################################
+# FORMAT
+################################################################################
+
+The directories are organized as Subject/Dataset, inside you will find:
+
+eye-*.avi: the recoding from the eye camera
+
+field-*.avi: the recording from the field camera
+
+journal-0000.txt: data file containing timestamps, pupil position, etc
+
+reviewed.csv: the hand-labeled classification for each frame in the format
+<index>, <class>, <timestamp>
+where class follows the enumeration
+Fixation = 0
+Saccade = 1
+Smooth pursuit = 2
+Noise = 3
+

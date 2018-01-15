@@ -462,7 +462,7 @@ end
             classificator{2}.fixation_detection_threshold = MODEL_SETTINGS.IVVT.FIXATION_DETECTION_THRESHOLD;
         end
         if( MODEL_SETTINGS.USE.PURSUITS ~= 0)
-            classificator{3} = classificator_pursuits_class;
+            classificator{3} = classificator_bdt_class;
             used(3) = 1;
             method_str{3} = '_pursuits';
 % Insert your fields here
