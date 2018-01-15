@@ -585,6 +585,7 @@ set( findobj('Tag','Execute_Classification_Button'), 'Enable', 'On');
 function [classificator, MODEL_SETTINGS] = Classifier_Setup(InputFile, classifier_index)
     clc;
     path(path,'classificator_1.5');
+    path(path, 'Results');
 
     MODEL_SETTINGS.READER.INPUT_DATA_NAME = InputFile;
     MODEL_SETTINGS.READER.X_FIELD = 8;
