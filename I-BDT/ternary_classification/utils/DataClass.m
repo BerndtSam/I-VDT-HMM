@@ -57,6 +57,14 @@ classdef DataClass < handle
     methods
         
         function obj = DataClass(entries)
+            % Height of monitor
+            height = 28;
+            % Pixel height of screen
+            vert_pixels = 768; 
+            % Distance from screen in cm
+            distance_from_screen = 70;
+            % Screen width
+            horiz_pixels = 1024;
             
             % Offset the timestamp for improved visualization
             tsOffset = entries(1,obj.tsIdx);
@@ -65,6 +73,7 @@ classdef DataClass < handle
             [rows, columns] = size(entries);
             for i=1:rows
                 eye_valid = entries(i,obj.evIdx);
+                % Our data marks as valid if it's 0, this marks valid as 1
                 if eye_valid == 0
                     eye_valid = 1;
                 else
@@ -72,8 +81,8 @@ classdef DataClass < handle
                 end
                 ts = entries(i,obj.tsIdx) - tsOffset;
                 if eye_valid == 1
-                    x = entries(i, obj.xIdx);
-                    y = entries(i, obj.yIdx);
+                    x = DVAtopxl( height, vert_pixels, distance_from_screen, horiz_pixels, 'x', entries(i, obj.xIdx));
+                    y = DVAtopxl( height, vert_pixels, distance_from_screen, horiz_pixels, 'y', entries(i, obj.yIdx));
                 else
                     if i == 1
                         x = 0;
