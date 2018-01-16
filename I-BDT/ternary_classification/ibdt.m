@@ -45,8 +45,10 @@ fixationLikelihood = zeros(1, length(d.v));
 saccadeLikelihood = zeros(1, length(d.v));
 pursuitLikelihood = zeros(1, length(d.v));
 
-
-minVel = 0;
+% By replacing their 0 with a better function, able to account for more
+% noisey data
+minVel = fmu + 3*fstd;
+%minVel = 0;
 maxVel = vGmm.mu(2);
 
 for i = 2 : length(d.v)

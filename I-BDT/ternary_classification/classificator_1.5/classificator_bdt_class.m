@@ -23,8 +23,10 @@ classdef classificator_bdt_class <  eye_tracker_raw_data_reader_class & ...     
             addpath('classification');
             addpath('utils');
            
-            in = '/Users/SamBerndt/Desktop/Class/Research/I-VDT-HMM/ternary_classifier/classificator_1.5/input/SubsamplesBDT/s_007_30.txt';
-            entries = importdata(in, '\t', 2);
+            filepath = obj.input_data_name;
+            %in = '/Users/SamBerndt/Desktop/Class/Research/I-VDT-HMM/I-BDT/ternary_classification/classificator_1.5/input/SubsamplesBDT/s_007_100.txt';
+            %in = '/Users/SamBerndt/Desktop/Class/Research/I-VDT-HMM/I-BDT/ternary_classification/etra2016-ibdt-dataset/1/1/journal-0000.txt';
+            entries = importdata(filepath, '\t', 2);
 
             % Convert our dataset to I-BDT eye records
             % Creates data class
@@ -35,18 +37,23 @@ classdef classificator_bdt_class <  eye_tracker_raw_data_reader_class & ...     
             d.c.set( d.ev == 0 , noise );
 
             classifications = ibdt(d, 80);
+            % Fixation = 0, saccade = 1, pursuit = 2
             classifications = classifications.value;
             
             eye_record_length = length(obj.eye_records);
             for i=1:eye_record_length     
                 try
                     if classifications(i) == 0
-                        obj.eye_records(i,obj.MOV_TYPE ) = 4;
+                        obj.eye_records(i,obj.MOV_TYPE ) = obj.FIXATION_TYPE;
+                    elseif classifications(i) == 1
+                        obj.eye_records(i,obj.MOV_TYPE ) = obj.SACCADE_TYPE;
+                    elseif classifications(i) == 2
+                        obj.eye_records(i,obj.MOV_TYPE ) = obj.PURSUIT_TYPE;
                     else
-                        obj.eye_records(i,obj.MOV_TYPE ) = classifications(i);
+                        obj.eye_records(i,obj.MOV_TYPE ) = obj.NOISE_TYPE;
                     end
                 catch
-                    obj.eye_records(i,obj.MOV_TYPE ) = 4;
+                    obj.eye_records(i,obj.MOV_TYPE ) = obj.NOISE_TYPE;
                 end
             end
             % Call I-BDT code using converted dataset
