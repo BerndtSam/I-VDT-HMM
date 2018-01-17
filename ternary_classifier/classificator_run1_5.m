@@ -767,13 +767,11 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_
         save(filename, 'frequency_threshold_scores');
         disp('Threshold scores for sampling frequency: ' + string(sample_rate) + ' saved.');
         
-        disp('Calculating Ideal Thresholds for samling frequency: ' + string(sample_rate));
-        
         % Calculate Ideal scores
-        ideal_scores = IdealScores(scores_computator.stimulus_records, subsample_ratio);
-        
-        CalculateIdealThresholds(ideal_scores, frequency_threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate);
-        disp('Ideal Thresholds for samling frequency: ' + string(sample_rate) + ' calculated and saved');
+        %disp('Calculating Ideal Thresholds for samling frequency: ' + string(sample_rate));
+        %ideal_scores = IdealScores(scores_computator.stimulus_records, subsample_ratio);
+        %CalculateIdealThresholds(ideal_scores, frequency_threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate);
+        %disp('Ideal Thresholds for sampling frequency: ' + string(sample_rate) + ' calculated and saved');
 
     end
     disp('All thresholds tested.');
@@ -831,7 +829,8 @@ function Run_IdealThresholdCalculator(hObject, InputFile, sample_frequency, clas
     scores_computator.read_stimulus_data( classificator{classifier_index}.input_data_name, 13, 14, 1, 14);
     
     % Calculate Ideal scores
-    ideal_scores = IdealScores(scores_computator.stimulus_records, subsample_ratio);
+    %ideal_scores = IdealScores(scores_computator.stimulus_records, subsample_ratio);
+    ideal_scores = [];
     CalculateIdealThresholds(ideal_scores, threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_frequency);
 
 
