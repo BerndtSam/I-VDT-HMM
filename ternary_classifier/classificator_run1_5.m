@@ -814,13 +814,13 @@ function [INPUT_DATA_FILE, INPUT_DATA_NAME] = GetDataFile(MODEL_SETTINGS)
     
 function Run_IdealThresholdCalculator(hObject, InputFile, sample_frequency, classifier_index, threshold_file) 
     disp('Running ideal threshold calculator');
-    final_results_directory_name = 'Results/FinalResults/';
+    final_results_directory_name = 'Results/FrequencyResults/';
     
     subsample_ratio = 1000/sample_frequency;
 
     threshold_scores = load(threshold_file);
 
-    threshold_scores = threshold_scores.final_threshold_scores;
+    threshold_scores = threshold_scores.frequency_threshold_scores;
     
     [classificator, MODEL_SETTINGS] = Classifier_Setup(InputFile, classifier_index);
     
