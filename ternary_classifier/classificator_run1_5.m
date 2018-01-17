@@ -814,7 +814,7 @@ function [INPUT_DATA_FILE, INPUT_DATA_NAME] = GetDataFile(MODEL_SETTINGS)
     
 function Run_IdealThresholdCalculator(hObject, InputFile, sample_frequency, classifier_index, threshold_file) 
     disp('Running ideal threshold calculator');
-    final_results_directory_name = 'Results/FrequencyResults/';
+    final_results_directory_name = 'Results/OptimalResults/';
     
     subsample_ratio = 1000/sample_frequency;
 
