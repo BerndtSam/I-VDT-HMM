@@ -860,9 +860,9 @@ function CalculateIdealThresholds(ideal_scores, threshold_scores, INPUT_DATA_NAM
     SACCADE_THRESHOLD_INDEX = 4;
     DISPERSION_INDEX = 5;
     DURATION_INDEX = 6;
-    PQnS_INDEX = 7;
+    SQnS_INDEX = 7;
     FQnS_INDEX = 8;
-    SQnS_INDEX = 9;
+    PQnS_INDEX = 9;
     MisFix_INDEX = 10;
     FQlS_INDEX = 11;
     PQlS_P_INDEX = 12;
@@ -872,6 +872,7 @@ function CalculateIdealThresholds(ideal_scores, threshold_scores, INPUT_DATA_NAM
     best_dispersion_threshold = 0;
     best_duration_threshold = 0;
     minimum_distance = 1000;
+    
     best_PQnS = 0;
     best_FQnS = 0;
     best_SQnS = 0;
