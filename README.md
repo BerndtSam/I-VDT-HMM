@@ -15,3 +15,9 @@ To run I-BDT, choose the user defined threshold after opening the classificator_
 Ensure that when inputting data subsampled lower than 1000 Hz that you update the Eye Trackers sampling rate in the GUI.
 An example of the input file is found below:
 /Users/SamBerndt/Desktop/Class/Research/I-VDT-HMM/I-BDT/ternary_classification/classificator_1.5/input/SubsamplesBDT/s_007_20.txt
+
+To test I-BDT's performance on subjects 1-10 for each frequency, run the following script while in the I-BDT/ternary_classification directory:
+classificator_run1_5('Run_Subsample_Classifier', 0, '/Users/SamBerndt/Desktop/Class/Research/I-VDT-HMM/I-BDT/ternary_classification/classificator_1.5/input/SubsamplesBDT', 3, [20, 30, 50, 60, 100, 200, 300, 500, 1000])
+This was designed to run on a single computer as there is no threshold estimation being done.
+Note that the results will be saved under:
+'/I-VDT-HMM/I-BDT/ternary_classification/Results/FrequencyResults' and '../FinalResults'
