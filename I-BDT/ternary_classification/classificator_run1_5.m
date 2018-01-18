@@ -576,6 +576,234 @@ end
 set( findobj('Tag','Execute_Classification_Button'), 'Enable', 'On');
 % ========== Real execution of classification models  END ===================
 
+function [classificator, MODEL_SETTINGS] = Classifier_Setup(InputFile, classifier_index)
+    clc;
+    path(path,'classificator_1.5');
+    path(path, 'Results');
+
+    MODEL_SETTINGS.READER.INPUT_DATA_NAME = InputFile;
+    MODEL_SETTINGS.READER.X_FIELD = 8;
+    MODEL_SETTINGS.READER.Y_FIELD = 9;
+    MODEL_SETTINGS.READER.V_FIELD = 11;
+    MODEL_SETTINGS.READER.HEADER_COUNT = 1;
+    MODEL_SETTINGS.READER.SAMPLE_RATE = 1000;
+    MODEL_SETTINGS.READER.FIELDS_COUNT = 14;
+    MODEL_SETTINGS.READER.DELTA_T_SEC = 1/1000;
+    MODEL_SETTINGS.CONVERTER.USE = false;
+
+    MODEL_SETTINGS.FILTER.USE = true;
+    MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE = 4;
+    MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE = 180;
+    MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH = 4;
+
+    MODEL_SETTINGS.OUTPUT.BASENAME_OUTPUT_FILENAME = 'classificator_1.5\output\s_001';
+    MODEL_SETTINGS.OUTPUT.BASENAME_OUTPUT_EXTENSION = '.txt';
+    MODEL_SETTINGS.OUTPUT.DEBUG_MODE = false;
+    MODEL_SETTINGS.PROCESSING.PLOTS.USE = false;
+    MODEL_SETTINGS.PROCESSING.SCORES.USE = true;
+
+    MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL = 75;
+    MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE = 0.5;
+
+    MODEL_SETTINGS.DEGREE_FILTER.BY_X = false;
+    MODEL_SETTINGS.DEGREE_FILTER.BY_Y = false;
+    MODEL_SETTINGS.DEGREE_FILTER.MIN_X = 0;
+    MODEL_SETTINGS.DEGREE_FILTER.MAX_X = 0;
+    MODEL_SETTINGS.DEGREE_FILTER.MIN_Y = 0;
+    MODEL_SETTINGS.DEGREE_FILTER.MAX_Y = 0;
+
+
+    classificator = {8};
+    method_str={8};
+    %used = zeros(8,1);
+    %data = cell(8,12);
+    %method_name = {'IVT'; 'IVVT'; 'pursuits'};
+    classificator{classifier_index} = classificator_bdt_class;
+    method_str{classifier_index} = '_pursuits';
+
+    classificator{classifier_index}.debug_mode =                   MODEL_SETTINGS.OUTPUT.DEBUG_MODE;
+    classificator{classifier_index}.input_data_name =              MODEL_SETTINGS.READER.INPUT_DATA_NAME;
+    classificator{classifier_index}.x_field =                      MODEL_SETTINGS.READER.X_FIELD;
+    classificator{classifier_index}.y_field =                      MODEL_SETTINGS.READER.Y_FIELD;
+    classificator{classifier_index}.v_field =                      MODEL_SETTINGS.READER.V_FIELD;
+    classificator{classifier_index}.header_count =                 MODEL_SETTINGS.READER.HEADER_COUNT; 
+    classificator{classifier_index}.delta_t_sec =                  MODEL_SETTINGS.READER.DELTA_T_SEC;
+    classificator{classifier_index}.sample_rate =                  MODEL_SETTINGS.READER.SAMPLE_RATE;
+    classificator{classifier_index}.fields_count =                 MODEL_SETTINGS.READER.FIELDS_COUNT;
+
+    classificator{classifier_index}.use_degree_data_filtering_X =  MODEL_SETTINGS.DEGREE_FILTER.BY_X;
+    classificator{classifier_index}.use_degree_data_filtering_Y =  MODEL_SETTINGS.DEGREE_FILTER.BY_Y;
+    classificator{classifier_index}.minimal_allowed_X_degree =     MODEL_SETTINGS.DEGREE_FILTER.MIN_X;
+    classificator{classifier_index}.maximal_allowed_X_degree =     MODEL_SETTINGS.DEGREE_FILTER.MAX_X;
+    classificator{classifier_index}.minimal_allowed_Y_degree =     MODEL_SETTINGS.DEGREE_FILTER.MIN_Y;
+    classificator{classifier_index}.maximal_allowed_Y_degree =     MODEL_SETTINGS.DEGREE_FILTER.MAX_Y;
+
+    classificator{classifier_index}.read_data();
+    if( classificator{classifier_index}.error_code == 0 )
+        if( MODEL_SETTINGS.CONVERTER.USE ~= 0)
+            classificator{classifier_index}.image_width_mm =                   MODEL_SETTINGS.CONVERTER.IMAGE_WIDTH_MM;
+            classificator{classifier_index}.image_height_mm =                  MODEL_SETTINGS.CONVERTER.IMAGE_HEIGHT_MM;
+            classificator{classifier_index}.image_width_etu =                  MODEL_SETTINGS.CONVERTER.IMAGE_WIDTH_ETU;
+            classificator{classifier_index}.image_height_etu =                 MODEL_SETTINGS.CONVERTER.IMAGE_HEIGHT_ETU;
+            classificator{classifier_index}.distance_from_screen =             MODEL_SETTINGS.CONVERTER.DISTANCE_FROM_SCREEN;
+            classificator{classifier_index}.distance_to_eye_position =         MODEL_SETTINGS.CONVERTER.DISTANCE_TO_EYE_LEVEL;
+            classificator{classifier_index}.distance_to_lower_screen_edge =    MODEL_SETTINGS.CONVERTER.DISTANCE_TO_LOWER_SCREEN_EDGE;
+            classificator{classifier_index}.convert_from_ETU_to_degrees();
+        end
+        classificator{classifier_index}.eye_tracker_data_filter_degree_range();
+        
+        %classificator{classifier_index}.basename_output_filename =     strcat(MODEL_SETTINGS.OUTPUT.BASENAME_OUTPUT_FILENAME,char(method_str{classifier_index}));
+        %classificator{classifier_index}.basename_output_extension =    MODEL_SETTINGS.OUTPUT.BASENAME_OUTPUT_EXTENSION;
+        %classificator{classifier_index}.setup_output_names();
+        %classificator{classifier_index}.write_datafiles();   
+    end
+    
+function Run_Subsample_Classifier(hObject, InputDirectory, classifier_index, sample_rates)
+        
+        startFile = 's_';
+        txt = '.txt';
+        for subject=1:10
+            if subject == 10
+                subjectNum = '010';
+            else
+                subjectNum = '00' + string(subject);
+            end 
+            InputFile = string(InputDirectory) + startFile + subjectNum + txt;
+            
+            [classificator, MODEL_SETTINGS] = Classifier_Setup(InputFile, classifier_index);
+
+            ClassifySubsampledData(classificator, MODEL_SETTINGS, classifier_index, sample_rates);
+        end
+
+function ClassifySubsampledData(classificator, MODEL_SETTINGS, classifier_index, sample_rates)
+    disp('Testing subsampled data...');
+    % Sample_rates should be a list of [20, 30, 50, 60, 100, 200, 300, 500, 1000]
+    [INPUT_DATA_FILE, INPUT_DATA_NAME] = GetDataFile(MODEL_SETTINGS);
+   
+    frequency_directory_name = 'Results/FrequencyResults/';
+    final_results_directory_name = 'Results/FinalResults/';
+    
+    normal_rate = MODEL_SETTINGS.READER.SAMPLE_RATE;
+    final_threshold_scores = [];
+    scores_index = 1;
+    
+    for sample_index=1:length(sample_rates)
+        frequency_threshold_scores = [];
+        frequency_scores_index = 1;
+        sample_rate = sample_rates(sample_index);
+        subsample_ratio = normal_rate/sample_rate;
+        
+        classificator{classifier_index}.sample_rate = sample_rate;
+        classificator{classifier_index}.delta_t_sec = 1/sample_rate;
+        classificator{classifier_index}.input_data_name = INPUT_DATA_FILE + '_' + string(sample_rate) + '.txt';
+        classificator{classifier_index}.header_count =                 MODEL_SETTINGS.READER.HEADER_COUNT; 
+        classificator{classifier_index}.read_data();
+        
+        %scores_computator = scores_computation_class;
+        %scores_computator.read_stimulus_data( classificator{classifier_index}.input_data_name, 13, 14, 1, 14);
+        
+        disp('Testing threshold scores for sampling frequency: ' + string(sample_rate));
+
+
+        AlgorithmStartTime = clock;
+        classificator{classifier_index}.classify();
+        AlgorithmEndTime = clock;
+        classificator{classifier_index}.eye_tracker_data_filter_degree_range();
+        classificator{classifier_index}.merge_fixation_time_interval = MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL;
+        classificator{classifier_index}.merge_fixation_distance = MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE;
+        classificator{classifier_index}.merge_records();
+        if( MODEL_SETTINGS.FILTER.USE ~= 0)
+            classificator{classifier_index}.minimal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE;
+            classificator{classifier_index}.maximal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE;
+            classificator{classifier_index}.minimal_saccade_length =       MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH;
+            classificator{classifier_index}.unfiltered_saccade_records =   classificator{classifier_index}.saccade_records;
+            classificator{classifier_index}.saccade_filtering();
+            classificator{classifier_index}.saccade_records =              classificator{classifier_index}.filtered_saccade_records;
+        end
+        if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0 || MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
+% Hardcoded parameters for provided input files
+            scores_computator = scores_computation_class;
+            scores_computator.read_stimulus_data( classificator{classifier_index}.input_data_name, 13, 14, 1, 14);
+            scores_computator.eye_records = classificator{classifier_index}.eye_records;
+            scores_computator.saccade_records = classificator{classifier_index}.saccade_records;
+            scores_computator.fixation_records = classificator{classifier_index}.fixation_records;
+            scores_computator.noise_records = classificator{classifier_index}.noise_records;
+            scores_computator.pursuit_records = classificator{classifier_index}.pursuit_records;
+            scores_computator.sample_rate = sample_rate;
+            scores_computator.delta_t_sec = 1/sample_rate;
+        end
+        if( MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
+            ClassificationEndTime = clock;
+            AlgorithmRunTime = AlgorithmEndTime - AlgorithmStartTime;
+            AlgorithmRunTime = 60*AlgorithmRunTime(5) + AlgorithmRunTime(6);
+            ClassificationRunTime = ClassificationEndTime - AlgorithmStartTime;
+            ClassificationRunTime = 60*ClassificationRunTime(5) + ClassificationRunTime(6);
+
+            frequency_threshold_scores(frequency_scores_index, :) = [double(sample_rate) double(AlgorithmRunTime) double(ClassificationRunTime) ...
+                0 0 0 ...
+                double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
+                double(scores_computator.MisFix) double(scores_computator.FQlS) double(scores_computator.PQlS_P) double(scores_computator.PQlS_V)];
+            final_threshold_scores(scores_index, :) = [double(sample_rate) double(AlgorithmRunTime) double(ClassificationRunTime) ...
+                0 0 0 ...
+                double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
+                double(scores_computator.MisFix) double(scores_computator.FQlS) double(scores_computator.PQlS_P) double(scores_computator.PQlS_V)];
+
+            scores_index = scores_index + 1;
+            frequency_scores_index = frequency_scores_index + 1;
+        end
+
+        
+        disp('Saving threshold scores for sampling frequency: ' + string(sample_rate));
+
+        filename = string(frequency_directory_name)  + 'f' + string(sample_rate) + '-' + string(INPUT_DATA_NAME) + '.mat';
+
+        save(filename, 'frequency_threshold_scores');
+        disp('Threshold scores for sampling frequency: ' + string(sample_rate) + ' saved.');
+        
+        % Calculate Ideal scores
+        %disp('Calculating Ideal Thresholds for samling frequency: ' + string(sample_rate));
+        %ideal_scores = IdealScores(scores_computator.stimulus_records, subsample_ratio);
+        %CalculateIdealThresholds(ideal_scores, frequency_threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate);
+        %disp('Ideal Thresholds for sampling frequency: ' + string(sample_rate) + ' calculated and saved');
+
+    end
+    disp('All thresholds tested.');
+    
+    disp('Saving threshold results to file...');
+    filename = string(final_results_directory_name) + string(INPUT_DATA_NAME) + '-results.mat';
+    
+    % Write scores to file
+    save(filename, 'final_threshold_scores');
+    
+    disp('Thresholds results saved to file.')
+   
+function [INPUT_DATA_FILE, INPUT_DATA_NAME] = GetDataFile(MODEL_SETTINGS)
+
+    INPUT_DATA_FILE = MODEL_SETTINGS.READER.INPUT_DATA_NAME;
+    INPUT_DATA_FILE = split(INPUT_DATA_FILE, '/');
+    temp_INPUT_DATA_FILE = '';
+    for dir_index=1:length(INPUT_DATA_FILE)
+        if isempty(INPUT_DATA_FILE{dir_index})
+            continue
+        elseif string(INPUT_DATA_FILE{dir_index}) == 'input'
+            temp_INPUT_DATA_FILE = temp_INPUT_DATA_FILE + '/' + INPUT_DATA_FILE{dir_index} + '/SubsamplesBDT';
+        else
+            temp_INPUT_DATA_FILE = string(temp_INPUT_DATA_FILE) + '/' + INPUT_DATA_FILE{dir_index};
+        end
+        
+    end
+    INPUT_DATA_FILE = temp_INPUT_DATA_FILE;
+    INPUT_DATA_FILE = split(INPUT_DATA_FILE, '.');
+    INPUT_DATA_FILE = string(INPUT_DATA_FILE(1)) + '.' + string(INPUT_DATA_FILE(2));
+    
+    INPUT_DATA_NAME = split(MODEL_SETTINGS.READER.INPUT_DATA_NAME, '/');
+    INPUT_DATA_NAME = INPUT_DATA_NAME(length(INPUT_DATA_NAME));
+    INPUT_DATA_NAME = split(INPUT_DATA_NAME, '.');
+    INPUT_DATA_NAME = INPUT_DATA_NAME{1};
+
+
+
+
 % --- Executes during object creation, after setting all properties.
 function IVT_Saccade_Detection_Threshold_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to IVT_Saccade_Detection_Threshold (see GCBO)

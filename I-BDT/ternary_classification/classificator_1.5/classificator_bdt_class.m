@@ -22,7 +22,7 @@ classdef classificator_bdt_class <  eye_tracker_raw_data_reader_class & ...     
             % I-BDT Setup
             addpath('classification');
             addpath('utils');
-           
+            
             filepath = obj.input_data_name;
             %in = '/Users/SamBerndt/Desktop/Class/Research/I-VDT-HMM/I-BDT/ternary_classification/classificator_1.5/input/SubsamplesBDT/s_007_100.txt';
             %in = '/Users/SamBerndt/Desktop/Class/Research/I-VDT-HMM/I-BDT/ternary_classification/etra2016-ibdt-dataset/1/1/journal-0000.txt';
