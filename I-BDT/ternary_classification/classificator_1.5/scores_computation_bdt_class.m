@@ -602,7 +602,7 @@ classdef scores_computation_bdt_class < classificator_enumerations_class & ...  
                 end
             end
             if( count_points ~= 0), result = result / count_points;
-            else result = 999;
+            else result = nan;
             end
         end
 
@@ -629,7 +629,7 @@ classdef scores_computation_bdt_class < classificator_enumerations_class & ...  
                 end
             end
             if( count_points ~= 0), result = result / count_points;
-            else result = 999;
+            else result = nan;
             end
         end
             
@@ -836,7 +836,7 @@ classdef scores_computation_bdt_class < classificator_enumerations_class & ...  
             if ( count_points ~= 0)
                 result = result / count_points;
             else
-                result = 999;
+                result = nan;
             end
         end
         
