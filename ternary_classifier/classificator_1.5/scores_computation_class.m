@@ -602,7 +602,7 @@ classdef scores_computation_class < classificator_enumerations_class & ...  % Ba
                 end
             end
             if( count_points ~= 0), result = result / count_points;
-            else result = 'N/A';
+            else result = nan;
             end
         end
 
@@ -629,7 +629,7 @@ classdef scores_computation_class < classificator_enumerations_class & ...  % Ba
                 end
             end
             if( count_points ~= 0), result = result / count_points;
-            else result = 'N/A';
+            else result = nan;
             end
         end
             
@@ -836,7 +836,7 @@ classdef scores_computation_class < classificator_enumerations_class & ...  % Ba
             if ( count_points ~= 0)
                 result = result / count_points;
             else
-                result = 'N/A';
+                result = nan;
             end
         end
         
