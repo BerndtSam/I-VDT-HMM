@@ -677,8 +677,8 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_
    
     [INPUT_DATA_FILE, INPUT_DATA_NAME] = GetDataFile(MODEL_SETTINGS);
     
-    frequency_directory_name = 'Results/FrequencyResults/';
-    final_results_directory_name = 'Results/FinalResults/';
+    frequency_directory_name = "Results/FrequencyResults/";
+    final_results_directory_name = "Results/FinalResults/";
     
     normal_rate = MODEL_SETTINGS.READER.SAMPLE_RATE;
     final_threshold_scores = [];
@@ -704,10 +704,10 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_
         % Test Threshold: 150:155, 50:50, 150:150 
         % Partial Threshold Test: 75:5:175, 10:10:150, 100:10:200
         % Full threshold Test: 50:250, 1:500, 75:300
-        for saccade_threshold=75:5:175
+        for saccade_threshold=75:5:75
             disp('Testing saccade threshold: '+ string(saccade_threshold) + ' on frequency: ' + string(sample_rate));
-            for dispersion_threshold=10:10:150
-                for duration_threshold=100:10:200
+            for dispersion_threshold=10:10:10
+                for duration_threshold=100:10:100
 
                     AlgorithmStartTime = clock;
                     classificator{classifier_index}.classify(true, saccade_threshold, double(dispersion_threshold/100), duration_threshold, subsample_ratio);
@@ -763,7 +763,7 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_
 
         resultTime = ResultsTime();
         %filename = frequency_directory_name + resultTime + '-f' + string(sample_rate) + '-' + INPUT_DATA_NAME + '.mat';
-        filename = frequency_directory_name + 'f' + string(sample_rate) + '-' + INPUT_DATA_NAME + '.mat';
+        filename = frequency_directory_name + "f" + string(sample_rate) + "-" + INPUT_DATA_NAME + ".mat";
 
         save(filename, 'frequency_threshold_scores');
         disp('Threshold scores for sampling frequency: ' + string(sample_rate) + ' saved.');
@@ -779,7 +779,7 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_
     
     disp('Saving threshold results to file...');
     resultTime = ResultsTime();
-    filename = final_results_directory_name + INPUT_DATA_NAME + '-results.mat';
+    filename = final_results_directory_name + INPUT_DATA_NAME + "-results.mat";
     
     % Write scores to file
     save(filename, 'final_threshold_scores');
