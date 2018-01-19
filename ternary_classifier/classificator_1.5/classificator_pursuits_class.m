@@ -47,7 +47,7 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
                 SACCADE_DETECTION_THRESHOLD_DEG_SEC = 150;
 
                 % I-DT variables
-                DISPERSION_THRESHOLD = .5;
+                DISPERSION_THRESHOLD = 0.5;
                 DURATION_THRESHOLD = floor(150/sample_rate);
             end
             
