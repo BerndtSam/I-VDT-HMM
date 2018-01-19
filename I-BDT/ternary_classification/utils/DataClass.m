@@ -4,16 +4,7 @@ classdef DataClass < handle
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Data protocol index description
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-%         % Time Stamp
-%         tsIdx = 2;        
-%         % Eye Valid
-%         evIdx = 10;       
-%         % X pupil coordinate
-%         xIdx = 11;        
-%         % Y pupil coordinate
-%         yIdx = 12;
-        
+
         % Time Stamp
         tsIdx = 2;        
         % Eye Valid

@@ -1,4 +1,4 @@
-classdef scores_computation_class < classificator_enumerations_class & ...  % Basic enumerations definitions
+classdef scores_computation_bdt_class < classificator_enumerations_class & ...  % Basic enumerations definitions
                                     eye_records_class & ...                 % Basic eye tracker data definitions
                                     eye_movements_records_class & ...       % Basic lists definitions
                                     classificator_time_rate_class & ...     % Time step and sample rate definitions
@@ -602,7 +602,7 @@ classdef scores_computation_class < classificator_enumerations_class & ...  % Ba
                 end
             end
             if( count_points ~= 0), result = result / count_points;
-            else result = 'N/A';
+            else result = 999;
             end
         end
 
@@ -629,7 +629,7 @@ classdef scores_computation_class < classificator_enumerations_class & ...  % Ba
                 end
             end
             if( count_points ~= 0), result = result / count_points;
-            else result = 'N/A';
+            else result = 999;
             end
         end
             
@@ -836,7 +836,7 @@ classdef scores_computation_class < classificator_enumerations_class & ...  % Ba
             if ( count_points ~= 0)
                 result = result / count_points;
             else
-                result = 'N/A';
+                result = 999;
             end
         end
         

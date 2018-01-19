@@ -520,14 +520,14 @@ end
                     classificator{i}.eye_tracker_data_filter_degree_range();
                     classificator{i}.merge_fixation_time_interval = MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL;
                     classificator{i}.merge_fixation_distance = MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE;
-                    classificator{i}.merge_records();
+                    classificator{i}.merge_records_bdt();
                     if( MODEL_SETTINGS.FILTER.USE ~= 0)
                         classificator{i}.minimal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE;
                         classificator{i}.maximal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE;
                         classificator{i}.minimal_saccade_length =       MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH;
-                        classificator{i}.unfiltered_saccade_records =   classificator{i}.saccade_records;
-                        classificator{i}.saccade_filtering();
-                        classificator{i}.saccade_records =              classificator{i}.filtered_saccade_records;
+                        %classificator{i}.unfiltered_saccade_records =   classificator{i}.saccade_records;
+                        %classificator{i}.saccade_filtering();
+                        %classificator{i}.saccade_records =              classificator{i}.filtered_saccade_records;
                     end
                     if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0 || MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
 % Hardcoded parameters for provided input files
@@ -577,7 +577,7 @@ set( findobj('Tag','Execute_Classification_Button'), 'Enable', 'On');
 % ========== Real execution of classification models  END ===================
 
 function [classificator, MODEL_SETTINGS] = Classifier_Setup(InputFile, classifier_index)
-    clc;
+    %clc;
     path(path,'classificator_1.5');
     path(path, 'Results');
 
@@ -711,18 +711,18 @@ function ClassifySubsampledData(classificator, MODEL_SETTINGS, classifier_index,
         classificator{classifier_index}.eye_tracker_data_filter_degree_range();
         classificator{classifier_index}.merge_fixation_time_interval = MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL;
         classificator{classifier_index}.merge_fixation_distance = MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE;
-        classificator{classifier_index}.merge_records();
+        classificator{classifier_index}.merge_records_bdt();
         if( MODEL_SETTINGS.FILTER.USE ~= 0)
             classificator{classifier_index}.minimal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE;
             classificator{classifier_index}.maximal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE;
             classificator{classifier_index}.minimal_saccade_length =       MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH;
-            classificator{classifier_index}.unfiltered_saccade_records =   classificator{classifier_index}.saccade_records;
-            classificator{classifier_index}.saccade_filtering();
-            classificator{classifier_index}.saccade_records =              classificator{classifier_index}.filtered_saccade_records;
+            %classificator{classifier_index}.unfiltered_saccade_records =   classificator{classifier_index}.saccade_records;
+            %classificator{classifier_index}.saccade_filtering();
+            %classificator{classifier_index}.saccade_records =              classificator{classifier_index}.filtered_saccade_records;
         end
         if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0 || MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
 % Hardcoded parameters for provided input files
-            scores_computator = scores_computation_class;
+            scores_computator = scores_computation_bdt_class;
             scores_computator.read_stimulus_data( classificator{classifier_index}.input_data_name, 13, 14, 1, 14);
             scores_computator.eye_records = classificator{classifier_index}.eye_records;
             scores_computator.saccade_records = classificator{classifier_index}.saccade_records;

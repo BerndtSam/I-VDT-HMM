@@ -5,7 +5,7 @@ if ws < 2 || we > length(d.v)-1
     v = d.v(ws:we);
     return
 end
-
+    
 assert(length(ws:we) >= 4, 'Time window is too small');
 
 % Get the velocities within the range and binarize them

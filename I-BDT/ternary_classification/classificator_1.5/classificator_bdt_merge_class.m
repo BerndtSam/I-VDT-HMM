@@ -1,4 +1,4 @@
-classdef classificator_merge_class <    eye_records_class & ...                 % Basic eye tracker data definitions
+classdef classificator_bdt_merge_class <    eye_records_class & ...                 % Basic eye tracker data definitions
                                         eye_movements_records_class & ...       % Contain definition for classifications lists
                                         eye_tracker_raw_data_filter_class & ... % Eye tracker data filtration based by allowed degress
                                         classificator_enumerations_class & ...  % Basic enumerations definitions
@@ -13,7 +13,7 @@ classdef classificator_merge_class <    eye_records_class & ...                 
 
     methods
 % Merge method
-        function merge_records(obj)
+        function merge_records_bdt(obj)
             if( obj.debug_mode ~= 0)
                 fprintf(strcat('Begin merge fixations and splitting records in :',datestr(now),'\n'));
             end
