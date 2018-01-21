@@ -92,7 +92,11 @@ classdef scores_computation_class < classificator_enumerations_class & ...  % Ba
                     plot(obj.fixation_records{i}(:,3),obj.fixation_records{i}(:,draw_coord),'-r');
 % Now we have to draw centroid of this saccade
                     centroid_coord = repmat(mean( obj.fixation_records{i}(:,draw_coord)) , length(obj.fixation_records{i}), 1);
-                    plot(obj.fixation_records{i}(:,3),centroid_coord,'-k');
+                    try
+                        plot(obj.fixation_records{i}(:,3),centroid_coord,'-k');
+                    catch
+                        continue;
+                    end
                 end
 
                 for i=1:length(obj.pursuit_records), plot(obj.pursuit_records{i}(:,3),obj.pursuit_records{i}(:,draw_coord),'g-');end
@@ -726,7 +730,7 @@ classdef scores_computation_class < classificator_enumerations_class & ...  % Ba
                             if( obj.eye_records( j, obj.MOV_TYPE ) == obj.PURSUIT_TYPE ), result = result + 1; end
                         end
                     end
-                end;
+                end
             end
             result = 100 * result / total_saccades_points;
         end
