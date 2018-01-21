@@ -704,7 +704,7 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_
         % Test Threshold: 150:155, 50:50, 150:150 
         % Partial Threshold Test: 75:5:175, 10:10:150, 100:10:200
         % Full threshold Test: 50:250, 1:500, 75:300
-        for saccade_threshold=75:5:75
+        for saccade_threshold=75:5:80
             disp('Testing saccade threshold: '+ string(saccade_threshold) + ' on frequency: ' + string(sample_rate));
             for dispersion_threshold=10:10:10
                 for duration_threshold=100:10:100
@@ -811,7 +811,7 @@ function [INPUT_DATA_FILE, INPUT_DATA_NAME] = GetDataFile(MODEL_SETTINGS)
     INPUT_DATA_NAME = INPUT_DATA_NAME{1};
     
     
-function Run_IdealThresholdCalculator(hObject, InputFile, sample_frequency, classifier_index, threshold_file) 
+function Run_IdealThresholdCalculator(hObject, InputFile, sample_frequency, classifier_index, threshold_file, weighted) 
     disp('Running ideal threshold calculator');
     final_results_directory_name = 'Results/OptimalResults/';
     
@@ -832,11 +832,17 @@ function Run_IdealThresholdCalculator(hObject, InputFile, sample_frequency, clas
     % Calculate Ideal scores
     %ideal_scores = IdealScores(scores_computator.stimulus_records, subsample_ratio);
     ideal_scores = [];
-    CalculateIdealThresholds(ideal_scores, threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_frequency);
+    CalculateIdealThresholds(ideal_scores, threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_frequency, weighted);
 
 
-function CalculateIdealThresholds(ideal_scores, threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate)
+function CalculateIdealThresholds(ideal_scores, threshold_scores, INPUT_DATA_NAME, final_results_directory_name, sample_rate, weighted)
     disp('Calculating Ideal Thresholds...');
+    
+    if weighted
+        weight = 5;
+    else
+        weight = 1;
+    end
     
     % Attempt to fetch ideal_scores
     try
@@ -883,14 +889,15 @@ function CalculateIdealThresholds(ideal_scores, threshold_scores, INPUT_DATA_NAM
     best_PQlS_V = 0;
     
     for index=1:size(threshold_scores, 1)
-        distance = sqrt(abs(threshold_scores(index, PQnS_INDEX) - IDEAL_PQnS)^2 + ...
-            abs(threshold_scores(index, FQnS_INDEX) - IDEAL_FQnS)^2 + ...
-            abs(threshold_scores(index, SQnS_INDEX) - IDEAL_SQnS)^2 + ...
-            abs(threshold_scores(index, MisFix_INDEX) - IDEAL_MisFix)^2 + ...
-            abs(threshold_scores(index, FQlS_INDEX) - IDEAL_FQlS)^2 + ...
+        distance = sqrt( ...
+            weight * abs(threshold_scores(index, PQnS_INDEX) - IDEAL_PQnS)^2 + ...
+            weight * abs(threshold_scores(index, FQnS_INDEX) - IDEAL_FQnS)^2 + ...
+            weight * abs(threshold_scores(index, SQnS_INDEX) - IDEAL_SQnS)^2 + ...
+            weight * abs(threshold_scores(index, MisFix_INDEX) - IDEAL_MisFix)^2 + ...
+            weight * abs(threshold_scores(index, FQlS_INDEX) - IDEAL_FQlS)^2 + ...
             abs(threshold_scores(index, PQlS_P_INDEX) - IDEAL_PQlS_P)^2 + ...
             abs(threshold_scores(index, PQlS_V_INDEX) - IDEAL_PQlS_V)^2);
-        
+
         if distance < minimum_distance
             minimum_distance = distance;
             best_saccade_threshold = threshold_scores(index, SACCADE_THRESHOLD_INDEX);
@@ -910,8 +917,7 @@ function CalculateIdealThresholds(ideal_scores, threshold_scores, INPUT_DATA_NAM
     
     disp('Saving ideal Thresholds to file...');
     % Now need to write best scores to file
-    resultTime = ResultsTime();
-    filename = final_results_directory_name + resultTime + '-f' + string(sample_rate) + '-' + INPUT_DATA_NAME + '-best.mat';
+    filename = final_results_directory_name + "f" + string(sample_rate) + '-' + INPUT_DATA_NAME + '-best.mat';
     save(filename, 'minimum_distance', 'best_saccade_threshold', 'best_dispersion_threshold', 'best_duration_threshold', ...
         'best_PQnS', 'best_FQnS', 'best_SQnS', 'best_MisFix', 'best_FQlS', 'best_PQlS_P', 'best_PQlS_V');
     
