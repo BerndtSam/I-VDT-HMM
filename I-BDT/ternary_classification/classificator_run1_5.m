@@ -659,8 +659,11 @@ function [classificator, MODEL_SETTINGS] = Classifier_Setup(InputFile, classifie
     end
     
 function Run_Subsample_Classifier(hObject, InputDirectory, classifier_index, sample_rates)
-        
-        startFile = 's_';
+        addpath('classificator_1.5/input');
+        addpath('classificator_1.5/output');
+        addpath('classificator_1.5/input/SubsamplesBDT');
+
+        startFile = '/s_';
         txt = '.txt';
         for subject=1:10
             if subject == 10
