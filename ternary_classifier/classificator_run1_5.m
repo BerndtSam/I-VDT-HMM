@@ -709,8 +709,8 @@ function TestSaccadeThresholds(classificator, MODEL_SETTINGS, classifier_index, 
         % Partial Threshold Test: 75:5:175, 10:10:150, 100:10:200
         % Full threshold Test: 50:250, 1:500, 75:300
         disp('Testing saccade threshold: '+ string(saccade_threshold) + ' on frequency: ' + string(sample_rate));
-        for dispersion_threshold=10:10:10
-            for duration_threshold=100:10:100
+        for dispersion_threshold=10:10:150
+            for duration_threshold=100:10:200
 
                 AlgorithmStartTime = clock;
                 classificator{classifier_index}.classify(true, saccade_threshold, double(dispersion_threshold/100), duration_threshold, subsample_ratio);
