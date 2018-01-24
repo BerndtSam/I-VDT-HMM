@@ -1,4 +1,4 @@
-function [  ] = ChartIBDTFixationThreshold( data, x_titles, subject, frequency )
+function [  ] = ChartIBDTFixationThreshold( data, x_titles, subject, frequency, location )
 %CHARTIBDTFIXATIONTHRESHOLD Summary of this function goes here
 %   Detailed explanation goes here
 O_SQnS = 'Opt. SQnS';
@@ -45,7 +45,7 @@ title(score_title);
 ylabel(y_label);
 xlabel(x_label);
 
-legend(SQnS, FQnS, PQnS, MisFix, FQlS, PQlS_P, PQlS_V, O_SQnS, O_FQnS, O_PQnS, O_MisFix, O_FQlS_PQlS, 'Location', 'northwest');
+legend(SQnS, FQnS, PQnS, MisFix, FQlS, PQlS_P, PQlS_V, O_SQnS, O_FQnS, O_PQnS, O_MisFix, O_FQlS_PQlS, 'Location', location);
 
 end
 

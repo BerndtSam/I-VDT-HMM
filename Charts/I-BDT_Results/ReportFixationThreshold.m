@@ -2,8 +2,8 @@
 % Show each score for each fixation threshold with score on left 
 additions = ["0", "Mu", "MuStd" "Mu2Std", "Mu5Std", "Mu10Std"];
 
-noisey_dataset = "s_002";
-clean_dataset = "s_001";
+noisey_dataset = "s_010";
+clean_dataset = "s_007";
 
 mat_file_extension = ".mat";
 
@@ -83,16 +83,16 @@ noisey_dataset = strrep(noisey_dataset,'_','-');
 clean_dataset = strrep(clean_dataset,'_','-');
 
 % Low Noisy
-ChartIBDTFixationThreshold(low_noisy, additions, noisey_dataset, low_frequency);
+ChartIBDTFixationThreshold(low_noisy, additions, noisey_dataset, low_frequency, 'north');
 
 % Low Clean
-ChartIBDTFixationThreshold(low_clean, additions, clean_dataset, low_frequency);
+ChartIBDTFixationThreshold(low_clean, additions, clean_dataset, low_frequency, 'north');
 
 % High Noisy
-ChartIBDTFixationThreshold(high_noisy, additions, noisey_dataset, high_frequency);
+ChartIBDTFixationThreshold(high_noisy, additions, noisey_dataset, high_frequency, 'north');
 
 % High Clean
-ChartIBDTFixationThreshold(high_clean, additions, clean_dataset, high_frequency);
+ChartIBDTFixationThreshold(high_clean, additions, clean_dataset, high_frequency, 'north');
 
 
 
