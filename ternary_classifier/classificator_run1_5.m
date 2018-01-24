@@ -948,7 +948,7 @@ function CalculateIdealThresholds(ideal_scores, threshold_scores, INPUT_DATA_NAM
     disp('Calculating Ideal Thresholds...');
     
     if weighted
-        weight = 5;
+        weight = 10;
     else
         weight = 1;
     end
