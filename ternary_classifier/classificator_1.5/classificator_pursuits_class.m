@@ -456,8 +456,6 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
                     end
                 end
                 
-                num_changes
-                converged = true
                 % End viterbi algorithm
 
                 % Recalculate mean of velocities for fixations and saccades
