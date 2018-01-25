@@ -1,0 +1,1 @@
+saccade number; onset time ms; velocity degree/sec; duration ms; onset coord X; onset coord Y; offset coord X; offset coord Y; [(coord_x, coord_y, sample_number); ...]
