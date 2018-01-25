@@ -152,31 +152,12 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
                     
                     ps = PDF_function(abs(noiseless_eye_record(col).xy_velocity_measured_deg), saccade_mean, saccade_std_dev);
                     
-                    if ps == 0
-                        ps = pf*10^-5;
-                    end
-                    if pf == 0
-                        pf = ps*10^-5;
-                    end
-                    if pf == 0 && ps == 0
-                        pf = 10^-10;
-                        ps = 10^-10;
-                    end
-                    
-                    
                     observation_fixation = pf/(pf+ps); 
                     observation_saccade = ps/(pf+ps);
-                    
-                    if isnan(observation_fixation) || isnan(observation_saccade)
-                        disp('why');
-                    end
 
                     % Determine the maximum probability of sequence assuming fixation is the current point
                     fix_fix_prob = probability_matrix(1, col-1) * p_fixation_fixation * observation_fixation; 
                     sac_fix_prob = probability_matrix(2, col-1) * p_saccade_fixation * observation_fixation;  
-                    if isnan(fix_fix_prob) || isnan(sac_fix_prob)
-                        disp('fuck');
-                    end
                     
                     if(fix_fix_prob > sac_fix_prob)
                        probability_matrix(1, col) = fix_fix_prob;
@@ -189,10 +170,6 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
                     % Determine the maximum probability of sequence assuming saccade is the current point
                     fix_sac_prob = probability_matrix(1, col-1) * p_fixation_saccade * observation_saccade; 
                     sac_sac_prob = probability_matrix(2, col-1) * p_saccade_saccade * observation_saccade; 
-                    
-                    if isnan(fix_sac_prob) || isnan(sac_sac_prob)
-                        disp('fuck');
-                    end
                     
                     if (fix_sac_prob > sac_sac_prob)
                         probability_matrix(2, col) = fix_sac_prob;
@@ -363,31 +340,12 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
                     
                     pp = PDF_function(difference, pursuit_mean, pursuit_std_dev);
                     
-%                     if pp == 0
-%                         pp = pf*10^-5;
-%                     end
-%                     if pf == 0
-%                         pf = pp*10^-5;
-%                     end
-%                     if pf == 0 && pp == 0
-%                         pf = 10^-10;
-%                         pp = 10^-10;
-%                     end
-                    
-                    
                     observation_fixation = pf/(pf+pp); 
                     observation_pursuit = pp/(pf+pp);
-                    
-                    if isnan(observation_fixation) || isnan(observation_pursuit)
-                        disp('why');
-                    end
 
                     % Determine the maximum probability of sequence assuming fixation is the current point
                     fix_fix_prob = probability_matrix(1, col-1) * p_fixation_fixation * observation_fixation; 
                     pur_fix_prob = probability_matrix(2, col-1) * p_pursuit_fixation * observation_fixation;  
-                    if isnan(fix_fix_prob) || isnan(pur_fix_prob)
-                        disp('fuck');
-                    end
                     
                     if(fix_fix_prob > pur_fix_prob)
                        probability_matrix(1, col) = fix_fix_prob;
@@ -400,10 +358,6 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
                     % Determine the maximum probability of sequence assuming saccade is the current point
                     fix_pur_prob = probability_matrix(1, col-1) * p_fixation_pursuit * observation_pursuit; 
                     pur_pur_prob = probability_matrix(2, col-1) * p_pursuit_pursuit * observation_pursuit; 
-                    
-                    if isnan(fix_pur_prob) || isnan(pur_pur_prob)
-                        disp('fuck');
-                    end
                     
                     if (fix_pur_prob > pur_pur_prob)
                         probability_matrix(2, col) = fix_pur_prob;
