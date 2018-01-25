@@ -814,9 +814,9 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_
         % Partial Threshold Test: 75:5:175, 10:10:150, 100:10:200
         % Full threshold Test: 50:250, 1:500, 75:300
         duration_threshold = 150;
-        for saccade_threshold=75:5:175
+        for saccade_threshold=75:5:150
             disp('Testing saccade threshold: '+ string(saccade_threshold) + ' on frequency: ' + string(sample_rate));
-            for dispersion_threshold=10:10:150
+            for dispersion_threshold=10:10:200
                 %for duration_threshold=100:10:100
 
                 AlgorithmStartTime = clock;
