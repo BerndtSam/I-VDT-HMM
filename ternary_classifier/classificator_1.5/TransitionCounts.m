@@ -55,6 +55,14 @@ function [ transition_matrix, total_transitions ] = TransitionCounts( noiseless_
         p_saccade_fixation/total_transitions p_saccade_saccade/total_transitions p_saccade_pursuit/total_transitions; ...
         p_pursuit_fixation/total_transitions p_pursuit_saccade/total_transitions p_pursuit_pursuit/total_transitions;];
     
+    %     min_value = min([min(transition_matrix(transition_matrix(1,:)>0)), min(transition_matrix(transition_matrix(2,:)>0)) , min(transition_matrix(transition_matrix(3,:)>0)) ]);
+%     for i=1:length(transition_matrix)
+%         for j=1:length(transition_matrix)
+%             if transition_matrix(i,j) == 0
+%                 transition_matrix(i,j) = min_value*10^-1;
+%             end
+%         end
+%     end
     
     
 end
