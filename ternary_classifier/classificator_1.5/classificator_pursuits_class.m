@@ -538,16 +538,10 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
 %                     observation_fixation = pf/(pf+pp); 
 %                     observation_pursuit = pp/(pf+pp);
 %                     
-%                     if isnan(observation_fixation) || isnan(observation_pursuit)
-%                         disp('why');
-%                     end
 % 
 %                     % Determine the maximum probability of sequence assuming fixation is the current point
 %                     fix_fix_prob = probability_matrix(1, col-1) * p_fixation_fixation * observation_fixation; 
 %                     pur_fix_prob = probability_matrix(2, col-1) * p_pursuit_fixation * observation_fixation;  
-%                     if isnan(fix_fix_prob) || isnan(pur_fix_prob)
-%                         disp('fuck');
-%                     end
 %                     
 %                     if(fix_fix_prob > pur_fix_prob)
 %                        probability_matrix(1, col) = fix_fix_prob;
@@ -561,9 +555,6 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
 %                     fix_pur_prob = probability_matrix(1, col-1) * p_fixation_pursuit * observation_pursuit; 
 %                     pur_pur_prob = probability_matrix(2, col-1) * p_pursuit_pursuit * observation_pursuit; 
 %                     
-%                     if isnan(fix_pur_prob) || isnan(pur_pur_prob)
-%                         disp('fuck');
-%                     end
 %                     
 %                     if (fix_pur_prob > pur_pur_prob)
 %                         probability_matrix(2, col) = fix_pur_prob;
@@ -781,10 +772,6 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
 %                         disp('...');
 %                     end
 % 
-%                     if isnan(observation_fixation) || isnan(observation_saccade) || isnan(observation_pursuit)
-%                         disp('lol, fuck you');
-%                     end
-%                     
 %                     % Determine the maximum probability of sequence assuming 
 %                     % fixation is the current point
 %                     fix_fix_prob = probability_matrix(1, col-1) * p_fixation_fixation * observation_fixation; 
