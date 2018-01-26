@@ -44,10 +44,10 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
                 sample_rate = 1000/obj.sample_rate;
 
                 % I-VT variables
-                SACCADE_DETECTION_THRESHOLD_DEG_SEC = 114;
+                SACCADE_DETECTION_THRESHOLD_DEG_SEC = 114; %114
                 % I-DT variables
                 DISPERSION_THRESHOLD = 0.67;
-                DURATION_THRESHOLD = floor(150/sample_rate);
+                 DURATION_THRESHOLD = floor(150/sample_rate);
             end
             
             % HMM Variables

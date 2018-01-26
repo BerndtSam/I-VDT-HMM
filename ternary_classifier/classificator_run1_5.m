@@ -706,15 +706,21 @@ function TestSaccadeThresholds(classificator, MODEL_SETTINGS, classifier_index, 
         disp('Testing threshold scores for sampling frequency: ' + string(sample_rate));
 
         % Test Threshold: 150:155, 50:50, 150:150 
-        % Partial Threshold Test: 75:5:175, 10:10:150, 100:10:200
+        % Partial Threshold Test: 75:5:175, 10:10:200, 100:10:200
         % Full threshold Test: 50:250, 1:500, 75:300
         disp('Testing saccade threshold: '+ string(saccade_threshold) + ' on frequency: ' + string(sample_rate));
         duration_threshold = 150;
 
-        for dispersion_threshold=10:10:200
+        for dispersion_threshold=50:10:60
             %for duration_threshold=100:10:200
 
             AlgorithmStartTime = clock;
+            classificator{classifier_index}.sample_rate = sample_rate;
+            classificator{classifier_index}.delta_t_sec = 1/sample_rate;
+            classificator{classifier_index}.input_data_name = INPUT_DATA_FILE + '_' + string(sample_rate) + '.txt';
+            classificator{classifier_index}.header_count =                 MODEL_SETTINGS.READER.HEADER_COUNT; 
+            classificator{classifier_index}.read_data();
+
             classificator{classifier_index}.classify(true, saccade_threshold, double(dispersion_threshold/100), duration_threshold, subsample_ratio);
             AlgorithmEndTime = clock;
             classificator{classifier_index}.eye_tracker_data_filter_degree_range();
@@ -819,7 +825,12 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_
             disp('Testing saccade threshold: '+ string(saccade_threshold) + ' on frequency: ' + string(sample_rate));
             for dispersion_threshold=10:10:200
                 %for duration_threshold=100:10:100
-
+                classificator{classifier_index}.sample_rate = sample_rate;
+                classificator{classifier_index}.delta_t_sec = 1/sample_rate;
+                classificator{classifier_index}.input_data_name = INPUT_DATA_FILE + '_' + string(sample_rate) + '.txt';
+                classificator{classifier_index}.header_count =                 MODEL_SETTINGS.READER.HEADER_COUNT; 
+                classificator{classifier_index}.read_data();
+                
                 AlgorithmStartTime = clock;
                 classificator{classifier_index}.classify(true, saccade_threshold, double(dispersion_threshold/100), duration_threshold, subsample_ratio);
                 AlgorithmEndTime = clock;
