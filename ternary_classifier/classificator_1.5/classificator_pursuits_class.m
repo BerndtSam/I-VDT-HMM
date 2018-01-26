@@ -152,6 +152,18 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
                     
                     ps = PDF_function(abs(noiseless_eye_record(col).xy_velocity_measured_deg), saccade_mean, saccade_std_dev);
                     
+                    
+                     if ps == 0
+                         ps = pf*10^-5;
+                     end
+                     if pf == 0
+                         pf = ps*10^-5;
+                     end
+                     if pf == 0 && ps == 0
+                         pf = 10^-10;
+                         ps = 10^-10;
+                     end
+                    
                     observation_fixation = pf/(pf+ps); 
                     observation_saccade = ps/(pf+ps);
 
@@ -183,6 +195,13 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
                         exponent = log10(max(probability_matrix(1,col), probability_matrix(2,col)));
                         probability_matrix(1,col) = probability_matrix(1,col) * 10^-(exponent+1);
                         probability_matrix(2,col) = probability_matrix(2,col) * 10^-(exponent+1);
+                        
+                        if probability_matrix(1,col) < 1e-20
+                            probability_matrix(1,col) = probability_matrix(2,col) * 1e-10;
+                        elseif probability_matrix(2,col) < 1e-20
+                            probability_matrix(2,col) = probability_matrix(1,col) * 1e-10;
+                        end
+                        
                     end
                     
 
