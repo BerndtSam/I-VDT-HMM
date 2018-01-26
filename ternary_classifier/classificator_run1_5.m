@@ -922,6 +922,90 @@ function [INPUT_DATA_FILE, INPUT_DATA_NAME] = GetDataFile(MODEL_SETTINGS)
     INPUT_DATA_NAME = INPUT_DATA_NAME{1};
     
     
+    
+
+function Run_Classifier_Ideal_Thresholds(hObject, InputFile, classifier_index, sample_rates, thresholds)
+        [classificator, MODEL_SETTINGS] = Classifier_Setup(InputFile, classifier_index);
+        
+        saccade_threshold = thresholds(1);
+        dispersion_threshold = thresholds(2);
+        duration_threshold = thresholds(3);
+           
+        [INPUT_DATA_FILE, INPUT_DATA_NAME] = GetDataFile(MODEL_SETTINGS);
+
+        final_results_directory_name = "Results/FinalResults/";
+
+        normal_rate = MODEL_SETTINGS.READER.SAMPLE_RATE;
+        final_threshold_scores = [];
+        scores_index = 1;
+
+        for sample_index=1:length(sample_rates)
+            sample_rate = sample_rates(sample_index);
+            subsample_ratio = normal_rate/sample_rate;
+
+            classificator{classifier_index}.sample_rate = sample_rate;
+            classificator{classifier_index}.delta_t_sec = 1/sample_rate;
+            classificator{classifier_index}.input_data_name = INPUT_DATA_FILE + '_' + string(sample_rate) + '.txt';
+            classificator{classifier_index}.header_count =                 MODEL_SETTINGS.READER.HEADER_COUNT; 
+            classificator{classifier_index}.read_data();
+
+            scores_computator = scores_computation_class;
+            scores_computator.read_stimulus_data( classificator{classifier_index}.input_data_name, 13, 14, 1, 14);
+
+            disp('Testing optimal thresholds for sampling frequency: ' + string(sample_rate));
+
+            AlgorithmStartTime = clock;
+            classificator{classifier_index}.classify(true, saccade_threshold, double(dispersion_threshold/100), duration_threshold, subsample_ratio);
+            AlgorithmEndTime = clock;
+            classificator{classifier_index}.eye_tracker_data_filter_degree_range();
+            classificator{classifier_index}.merge_fixation_time_interval = MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL;
+            classificator{classifier_index}.merge_fixation_distance = MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE;
+            classificator{classifier_index}.merge_records();
+            if( MODEL_SETTINGS.FILTER.USE ~= 0)
+                classificator{classifier_index}.minimal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE;
+                classificator{classifier_index}.maximal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE;
+                classificator{classifier_index}.minimal_saccade_length =       MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH;
+                classificator{classifier_index}.unfiltered_saccade_records =   classificator{classifier_index}.saccade_records;
+                classificator{classifier_index}.saccade_filtering();
+                classificator{classifier_index}.saccade_records =              classificator{classifier_index}.filtered_saccade_records;
+            end
+            if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0 || MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
+% Hardcoded parameters for provided input files
+                scores_computator = scores_computation_class;
+                scores_computator.read_stimulus_data( classificator{classifier_index}.input_data_name, 13, 14, 1, 14);
+                scores_computator.eye_records = classificator{classifier_index}.eye_records;
+                scores_computator.saccade_records = classificator{classifier_index}.saccade_records;
+                scores_computator.fixation_records = classificator{classifier_index}.fixation_records;
+                scores_computator.noise_records = classificator{classifier_index}.noise_records;
+                scores_computator.pursuit_records = classificator{classifier_index}.pursuit_records;
+                scores_computator.sample_rate = sample_rate;
+                scores_computator.delta_t_sec = 1/sample_rate;
+            end
+            if( MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
+                ClassificationEndTime = clock;
+                AlgorithmRunTime = AlgorithmEndTime - AlgorithmStartTime;
+                AlgorithmRunTime = 60*AlgorithmRunTime(5) + AlgorithmRunTime(6);
+                ClassificationRunTime = ClassificationEndTime - AlgorithmStartTime;
+                ClassificationRunTime = 60*ClassificationRunTime(5) + ClassificationRunTime(6);
+
+                final_threshold_scores(scores_index, :) = [double(sample_rate) double(AlgorithmRunTime) double(ClassificationRunTime) ...
+                    double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
+                    double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
+                    double(scores_computator.MisFix) double(scores_computator.FQlS) double(scores_computator.PQlS_P) double(scores_computator.PQlS_V)];
+
+                scores_index = scores_index + 1;
+            end
+            %end
+
+            disp('Saving threshold scores for sampling frequency: ' + string(sample_rate));
+
+            filename = final_results_directory_name + INPUT_DATA_NAME + "-final.mat";
+
+            save(filename, 'final_threshold_scores');
+            disp('Optimal scores for: ' + string(sample_rate) + ' saved.');
+        end
+
+    
 function Run_IdealThresholdCalculator(hObject, InputFile, sample_frequency, classifier_index, threshold_file, weighted) 
     disp('Running ideal threshold calculator');
     final_results_directory_name = 'Results/OptimalResults/';

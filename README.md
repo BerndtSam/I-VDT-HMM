@@ -1,6 +1,7 @@
 # I-VDT-HMM
 Ternary eye movement classification based off of the I-VDT algorithm, but enhanced using the Viterbi algorithm to determine the highest probabilistic classification after both the velocity and dispersion threshold algorithms
 
+I-VDT-HMM:
 
 To run the parameter estimation script, where the file will test a range of saccade velocity thresholds, dispersion and duration thresholds, as well as subsample the frequencies to save the scores for each. The s_007.txt at the end of the 3rd parameter can be replaced by any of the 11 input files.:
 classificator_run1_5('Run_Thresholding_Classifier', 0, '/Users/SamBerndt/Desktop/Class/Research/I-VDT-HMM/ternary_classifier/classificator_1.5/input/s_007.txt', 3, 30)
@@ -13,6 +14,14 @@ classificator_run1_5('Run_IdealThresholdCalculator', 0, full_subsampled_input_da
 An example for running this on sample 7 with subsampling frequency 30 is found below:
 classificator_run1_5('Run_IdealThresholdCalculator', 0, '/Users/SamBerndt/Desktop/Class/Research/I-VDT-HMM/ternary_classifier/classificator_1.5/input/Subsamples/s_007_30.txt', 30,  3, '/Users/SamBerndt/Desktop/Class/Research/I-VDT-HMM/ternary_classifier/Results/FrequencyResults/f30-s_007.mat', true)
 The final parameter uses a weighted calculation to put weight on all but the PQlS_P and PQlS_V.
+
+To calculate the scores using the optimal thresholds and a set of frequencies, use the function below:
+Run_Classifier_Ideal_Thresholds(hObject, InputFile, classifier_index, sample_rates, thresholds)
+An example is as follows:
+classificator_run1_5('Run_Classifier_Ideal_Thresholds', 0, '/Users/SamBerndt/Desktop/Class/Research/I-VDT-HMM/ternary_classifier/classificator_1.5/input/s_007.txt', 3, [30 100 1000], [70 0.67 150])
+
+
+I-BDT:
 
 To run I-BDT, choose the user defined threshold after opening the classificator_run1_5.fig with the input data source as a string to the correct subsampled data. This data is subsampled differently than it is for I-VDT-HMM as it requires specific timestamps. The subsampling algorithm is a python script found under classificator_1.5/Results/Input/.
 Ensure that when inputting data subsampled lower than 1000 Hz that you update the Eye Trackers sampling rate in the GUI.
