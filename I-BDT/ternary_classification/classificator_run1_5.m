@@ -665,9 +665,9 @@ function Run_Subsample_Classifier(hObject, InputDirectory, classifier_index, sam
 
         startFile = '/s_';
         txt = '.txt';
-        for subject=1:10
-            if subject == 10
-                subjectNum = '010';
+        for subject=11:11
+            if subject == 11
+                subjectNum = '011';
             else
                 subjectNum = '00' + string(subject);
             end 
@@ -770,13 +770,13 @@ function ClassifySubsampledData(classificator, MODEL_SETTINGS, classifier_index,
         %disp('Ideal Thresholds for sampling frequency: ' + string(sample_rate) + ' calculated and saved');
 
     end
-    disp('All thresholds tested.');
-    
-    disp('Saving threshold results to file...');
-    filename = string(final_results_directory_name) + string(INPUT_DATA_NAME) + '-results.mat';
-    
-    % Write scores to file
-    save(filename, 'final_threshold_scores');
+%     disp('All thresholds tested.');
+%     
+%     disp('Saving threshold results to file...');
+%     filename = string(final_results_directory_name) + string(INPUT_DATA_NAME) + '-results.mat';
+%     
+%     % Write scores to file
+%     save(filename, 'final_threshold_scores');
     
     disp('Thresholds results saved to file.')
    
