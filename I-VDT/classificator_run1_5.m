@@ -624,7 +624,7 @@ function [classificator, MODEL_SETTINGS] = Classifier_Setup(InputFile, classifie
     %used = zeros(8,1);
     %data = cell(8,12);
     %method_name = {'IVT'; 'IVVT'; 'pursuits'};
-    classificator{classifier_index} = classificator_pursuits_class;
+    classificator{classifier_index} = classificator_VDT_class;
     method_str{classifier_index} = '_pursuits';
 
     classificator{classifier_index}.debug_mode =                   MODEL_SETTINGS.OUTPUT.DEBUG_MODE;
@@ -708,10 +708,10 @@ function TestSaccadeThresholds(classificator, MODEL_SETTINGS, classifier_index, 
         % Test Threshold: 150:155, 50:50, 150:150 
         % Partial Threshold Test: 75:5:175, 10:10:150, 100:10:200
         % Full threshold Test: 50:250, 1:500, 75:300
-        disp('Testing saccade threshold: '+ string(saccade_threshold) + ' on frequency: ' + string(sample_rate));
-        for dispersion_threshold=10:10:150
-            for duration_threshold=100:10:200
-
+        saccade_threshold = 70;
+        %disp('Testing saccade threshold: '+ string(saccade_threshold) + ' on frequency: ' + string(sample_rate));
+        for dispersion_threshold=200:1:200
+            for duration_threshold=150:10:150
                 AlgorithmStartTime = clock;
                 classificator{classifier_index}.classify(true, saccade_threshold, double(dispersion_threshold/100), duration_threshold, subsample_ratio);
                 AlgorithmEndTime = clock;
@@ -813,10 +813,10 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_
         % Test Threshold: 150:155, 50:50, 150:150 
         % Partial Threshold Test: 75:5:175, 10:10:150, 100:10:200
         % Full threshold Test: 50:250, 1:500, 75:300
-        for saccade_threshold=75:5:80
+        for saccade_threshold=70:1:70
             disp('Testing saccade threshold: '+ string(saccade_threshold) + ' on frequency: ' + string(sample_rate));
-            for dispersion_threshold=10:10:10
-                for duration_threshold=100:10:100
+            for dispersion_threshold=200:1:200
+                for duration_threshold=150:10:150
 
                     AlgorithmStartTime = clock;
                     classificator{classifier_index}.classify(true, saccade_threshold, double(dispersion_threshold/100), duration_threshold, subsample_ratio);
@@ -884,14 +884,14 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_
         %disp('Ideal Thresholds for sampling frequency: ' + string(sample_rate) + ' calculated and saved');
 
     end
-    disp('All thresholds tested.');
-    
-    disp('Saving threshold results to file...');
-    resultTime = ResultsTime();
-    filename = final_results_directory_name + INPUT_DATA_NAME + "-results.mat";
+%     disp('All thresholds tested.');
+%     
+%     disp('Saving threshold results to file...');
+%     resultTime = ResultsTime();
+%     filename = final_results_directory_name + INPUT_DATA_NAME + "-results.mat";
     
     % Write scores to file
-    save(filename, 'final_threshold_scores');
+%     save(filename, 'final_threshold_scores');
     
     disp('Thresholds results saved to file.')
    
