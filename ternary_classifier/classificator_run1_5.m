@@ -711,7 +711,7 @@ function TestSaccadeThresholds(classificator, MODEL_SETTINGS, classifier_index, 
         disp('Testing saccade threshold: '+ string(saccade_threshold) + ' on frequency: ' + string(sample_rate));
         duration_threshold = 150;
 
-        for dispersion_threshold=50:10:60
+        for dispersion_threshold=10:10:200
             %for duration_threshold=100:10:200
 
             AlgorithmStartTime = clock;
