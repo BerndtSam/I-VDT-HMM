@@ -110,10 +110,14 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
             % Calculate mean of velocities for fixation and saccade
             [fixation_mean, saccade_mean] = CalculateVelocityMeans(noiseless_eye_record);
             
+            initial_fixation_mean = fixation_mean;
+            initial_saccade_mean = saccade_mean;
             % Calculate standard deviation of velocities for fixation and
             % saccade
             [fixation_std_dev, saccade_std_dev] = CalculateVelocityStandardDeviation(noiseless_eye_record, fixation_mean, saccade_mean, 0);
-
+            
+            initial_fixation_std_dev = fixation_std_dev;
+            initial_saccade_std_dev = saccade_std_dev;
             % Calculate number of transitions between classifications
             [transition_matrix] = TransitionCounts(noiseless_eye_record);
             
@@ -138,6 +142,15 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
                 probability_matrix = zeros(2, num_records); 
                 classification_matrix = zeros(2, num_records); 
 
+                if isnan(fixation_mean)
+                    fixation_mean = initial_fixation_mean;
+                    fixation_std_dev = initial_fixation_std_dev;
+                end
+                if isnan(saccade_mean)
+                    saccade_mean = initial_saccade_mean;
+                    saccade_std_dev = initial_saccade_std_dev;
+                end
+                
                 % Observation prob as initial prob for the first point
                 pf = PDF_function(abs(noiseless_eye_record(1).xy_velocity_measured_deg), fixation_mean, fixation_std_dev);
                 ps = PDF_function(abs(noiseless_eye_record(1).xy_velocity_measured_deg), saccade_mean, saccade_std_dev);
@@ -196,9 +209,9 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
                         probability_matrix(1,col) = probability_matrix(1,col) * 10^-(exponent+1);
                         probability_matrix(2,col) = probability_matrix(2,col) * 10^-(exponent+1);
                         
-                        if probability_matrix(1,col) < 1e-20
+                        if probability_matrix(1,col) < 1e-20 || probability_matrix(1,col) == 0
                             probability_matrix(1,col) = probability_matrix(2,col) * 1e-10;
-                        elseif probability_matrix(2,col) < 1e-20
+                        elseif probability_matrix(2,col) < 1e-20 || probability_matrix(2,col) == 0
                             probability_matrix(2,col) = probability_matrix(1,col) * 1e-10;
                         end
                         
@@ -230,11 +243,11 @@ classdef classificator_pursuits_class <  eye_tracker_raw_data_reader_class & ...
 
                 % Recalculate mean of velocities for fixations and saccades
                 [fixation_mean, saccade_mean] = CalculateVelocityMeans(noiseless_eye_record);
-
+                
                 % Calculate standard deviation of velocities for fixation and
                 % saccade
                 [fixation_std_dev, saccade_std_dev] = CalculateVelocityStandardDeviation(noiseless_eye_record, fixation_mean, saccade_mean, 0);
-
+                
                 % Calculate number of transitions between classifications
                 [transition_matrix] = TransitionCounts(noiseless_eye_record);
 
