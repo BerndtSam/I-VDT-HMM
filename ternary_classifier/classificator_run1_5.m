@@ -709,55 +709,56 @@ function TestSaccadeThresholds(classificator, MODEL_SETTINGS, classifier_index, 
         % Partial Threshold Test: 75:5:175, 10:10:150, 100:10:200
         % Full threshold Test: 50:250, 1:500, 75:300
         disp('Testing saccade threshold: '+ string(saccade_threshold) + ' on frequency: ' + string(sample_rate));
-        for dispersion_threshold=10:10:150
-            for duration_threshold=100:10:200
+        duration_threshold = 150;
 
-                AlgorithmStartTime = clock;
-                classificator{classifier_index}.classify(true, saccade_threshold, double(dispersion_threshold/100), duration_threshold, subsample_ratio);
-                AlgorithmEndTime = clock;
-                classificator{classifier_index}.eye_tracker_data_filter_degree_range();
-                classificator{classifier_index}.merge_fixation_time_interval = MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL;
-                classificator{classifier_index}.merge_fixation_distance = MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE;
-                classificator{classifier_index}.merge_records();
-                if( MODEL_SETTINGS.FILTER.USE ~= 0)
-                    classificator{classifier_index}.minimal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE;
-                    classificator{classifier_index}.maximal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE;
-                    classificator{classifier_index}.minimal_saccade_length =       MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH;
-                    classificator{classifier_index}.unfiltered_saccade_records =   classificator{classifier_index}.saccade_records;
-                    classificator{classifier_index}.saccade_filtering();
-                    classificator{classifier_index}.saccade_records =              classificator{classifier_index}.filtered_saccade_records;
-                end
-                if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0 || MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
+        for dispersion_threshold=10:10:200
+            %for duration_threshold=100:10:200
+
+            AlgorithmStartTime = clock;
+            classificator{classifier_index}.classify(true, saccade_threshold, double(dispersion_threshold/100), duration_threshold, subsample_ratio);
+            AlgorithmEndTime = clock;
+            classificator{classifier_index}.eye_tracker_data_filter_degree_range();
+            classificator{classifier_index}.merge_fixation_time_interval = MODEL_SETTINGS.MERGE.MERGE_FIXATION_TIME_INTERVAL;
+            classificator{classifier_index}.merge_fixation_distance = MODEL_SETTINGS.MERGE.MERGE_FIXATION_DISTANCE;
+            classificator{classifier_index}.merge_records();
+            if( MODEL_SETTINGS.FILTER.USE ~= 0)
+                classificator{classifier_index}.minimal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_AMPLITUDE;
+                classificator{classifier_index}.maximal_saccade_amplitude =    MODEL_SETTINGS.FILTER.MAXIMAL_SACCADE_AMPLITUDE;
+                classificator{classifier_index}.minimal_saccade_length =       MODEL_SETTINGS.FILTER.MINIMAL_SACCADE_LENGTH;
+                classificator{classifier_index}.unfiltered_saccade_records =   classificator{classifier_index}.saccade_records;
+                classificator{classifier_index}.saccade_filtering();
+                classificator{classifier_index}.saccade_records =              classificator{classifier_index}.filtered_saccade_records;
+            end
+            if( MODEL_SETTINGS.PROCESSING.PLOTS.USE ~= 0 || MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
 % Hardcoded parameters for provided input files
-                    scores_computator = scores_computation_class;
-                    scores_computator.read_stimulus_data( classificator{classifier_index}.input_data_name, 13, 14, 1, 14);
-                    scores_computator.eye_records = classificator{classifier_index}.eye_records;
-                    scores_computator.saccade_records = classificator{classifier_index}.saccade_records;
-                    scores_computator.fixation_records = classificator{classifier_index}.fixation_records;
-                    scores_computator.noise_records = classificator{classifier_index}.noise_records;
-                    scores_computator.pursuit_records = classificator{classifier_index}.pursuit_records;
-                    scores_computator.sample_rate = sample_rate;
-                    scores_computator.delta_t_sec = 1/sample_rate;
-                end
-                if( MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
-                    ClassificationEndTime = clock;
-                    AlgorithmRunTime = AlgorithmEndTime - AlgorithmStartTime;
-                    AlgorithmRunTime = 60*AlgorithmRunTime(5) + AlgorithmRunTime(6);
-                    ClassificationRunTime = ClassificationEndTime - AlgorithmStartTime;
-                    ClassificationRunTime = 60*ClassificationRunTime(5) + ClassificationRunTime(6);
+                scores_computator = scores_computation_class;
+                scores_computator.read_stimulus_data( classificator{classifier_index}.input_data_name, 13, 14, 1, 14);
+                scores_computator.eye_records = classificator{classifier_index}.eye_records;
+                scores_computator.saccade_records = classificator{classifier_index}.saccade_records;
+                scores_computator.fixation_records = classificator{classifier_index}.fixation_records;
+                scores_computator.noise_records = classificator{classifier_index}.noise_records;
+                scores_computator.pursuit_records = classificator{classifier_index}.pursuit_records;
+                scores_computator.sample_rate = sample_rate;
+                scores_computator.delta_t_sec = 1/sample_rate;
+            end
+            if( MODEL_SETTINGS.PROCESSING.SCORES.USE ~= 0)
+                ClassificationEndTime = clock;
+                AlgorithmRunTime = AlgorithmEndTime - AlgorithmStartTime;
+                AlgorithmRunTime = 60*AlgorithmRunTime(5) + AlgorithmRunTime(6);
+                ClassificationRunTime = ClassificationEndTime - AlgorithmStartTime;
+                ClassificationRunTime = 60*ClassificationRunTime(5) + ClassificationRunTime(6);
 
-                    frequency_threshold_scores(frequency_scores_index, :) = [double(sample_rate) double(AlgorithmRunTime) double(ClassificationRunTime) ...
-                        double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
-                        double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
-                        double(scores_computator.MisFix) double(scores_computator.FQlS) double(scores_computator.PQlS_P) double(scores_computator.PQlS_V)];
-                    final_threshold_scores(scores_index, :) = [double(sample_rate) double(AlgorithmRunTime) double(ClassificationRunTime) ...
-                        double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
-                        double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
-                        double(scores_computator.MisFix) double(scores_computator.FQlS) double(scores_computator.PQlS_P) double(scores_computator.PQlS_V)];
+                frequency_threshold_scores(frequency_scores_index, :) = [double(sample_rate) double(AlgorithmRunTime) double(ClassificationRunTime) ...
+                    double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
+                    double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
+                    double(scores_computator.MisFix) double(scores_computator.FQlS) double(scores_computator.PQlS_P) double(scores_computator.PQlS_V)];
+                final_threshold_scores(scores_index, :) = [double(sample_rate) double(AlgorithmRunTime) double(ClassificationRunTime) ...
+                    double(saccade_threshold) double(dispersion_threshold/100) double(duration_threshold) ...
+                    double(scores_computator.SQnS) double(scores_computator.FQnS) double(scores_computator.PQnS) ...
+                    double(scores_computator.MisFix) double(scores_computator.FQlS) double(scores_computator.PQlS_P) double(scores_computator.PQlS_V)];
 
-                    scores_index = scores_index + 1;
-                    frequency_scores_index = frequency_scores_index + 1;
-                end
+                scores_index = scores_index + 1;
+                frequency_scores_index = frequency_scores_index + 1;
             end
         end
         
@@ -814,7 +815,7 @@ function TestThresholds(classificator, MODEL_SETTINGS, classifier_index, sample_
         % Partial Threshold Test: 75:5:175, 10:10:150, 100:10:200
         % Full threshold Test: 50:250, 1:500, 75:300
         duration_threshold = 150;
-        for saccade_threshold=75:5:150
+        for saccade_threshold=70:5:150
             disp('Testing saccade threshold: '+ string(saccade_threshold) + ' on frequency: ' + string(sample_rate));
             for dispersion_threshold=10:10:200
                 %for duration_threshold=100:10:100
