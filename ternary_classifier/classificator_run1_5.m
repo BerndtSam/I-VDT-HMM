@@ -664,6 +664,14 @@ function [classificator, MODEL_SETTINGS] = Classifier_Setup(InputFile, classifie
         %classificator{classifier_index}.write_datafiles();   
     end
 
+function CalculateIdealScores(hObject, InputFile, classifier_index)
+    [classificator, MODEL_SETTINGS] = Classifier_Setup(InputFile, classifier_index);
+    
+    scores_computator = scores_computation_class;
+    scores_computator.read_stimulus_data( classificator{classifier_index}.input_data_name, 13, 14, 1, 14);
+     
+    IdealScores(scores_computator.stimulus_records, 1);
+    
 % ========== Real execution of classification models  END ===================
 function Run_Thresholding_Classifier(hObject, InputFile, classifier_index, sample_rates)
         

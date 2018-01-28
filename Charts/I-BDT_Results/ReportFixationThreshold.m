@@ -65,15 +65,17 @@ for addition=1:length(additions)
     
 end
 
-O_SQnS = 'Opt. SQnS';
-O_FQnS = 'Opt. FQnS';
-O_PQnS = 'Opt. PQnS';
-O_MisFix = 'Opt. MisFix';
-O_FQlS_PQlS = 'Opt. FQlS/PQlS_P/PQlS_V';
+O_SQnS = 'Ideal SQnS';
+O_FQnS = 'Ideal FQnS';
+O_PQnS = 'Ideal PQnS';
+O_MisFix = 'Ideal MisFix';
+O_FQlS_PQlS = 'Ideal FQlS/PQlS_P/PQlS_V';
 
 optimal_SQnS = 100;
-optimal_FQnS = 83.9;
-optimal_PQnS = 52;
+%optimal_FQnS = 83.9;
+%optimal_PQnS = 52;
+optimal_FQnS = 81.5991;
+optimal_PQnS = 52.04;
 optimal_MisFix = 7.1;
 optimal_FQlS = 0;
 optimal_PQlS_P = 0;
@@ -83,16 +85,16 @@ noisey_dataset = strrep(noisey_dataset,'_','-');
 clean_dataset = strrep(clean_dataset,'_','-');
 
 % Low Noisy
-ChartIBDTFixationThreshold(low_noisy, additions, noisey_dataset, low_frequency, 'north');
+ChartIBDTFixationThreshold(low_noisy, additions, noisey_dataset, low_frequency, 'bestoutside');
 
 % Low Clean
-ChartIBDTFixationThreshold(low_clean, additions, clean_dataset, low_frequency, 'north');
+ChartIBDTFixationThreshold(low_clean, additions, clean_dataset, low_frequency, 'bestoutside');
 
 % High Noisy
-ChartIBDTFixationThreshold(high_noisy, additions, noisey_dataset, high_frequency, 'north');
+ChartIBDTFixationThreshold(high_noisy, additions, noisey_dataset, high_frequency, 'bestoutside');
 
 % High Clean
-ChartIBDTFixationThreshold(high_clean, additions, clean_dataset, high_frequency, 'north');
+ChartIBDTFixationThreshold(high_clean, additions, clean_dataset, high_frequency, 'bestoutside');
 
 
 

@@ -38,7 +38,7 @@ function [ideal_fqns] = GetIdealFQnS(stimulus_records, subsample_ratio)
     
     % Sl = saccade latency;
     % Pulled from paper
-    Sl = 200;
+    Sl = 120;
     
     % m = Number of stimulous transitions between fixations and saccades
     m = 0;
@@ -48,7 +48,8 @@ function [ideal_fqns] = GetIdealFQnS(stimulus_records, subsample_ratio)
     
     % Pl is the duration of the SP termination phase in ms during fixation stimulus
     % Pulled from paper
-    Pl = 130;
+    %Pl = 130;
+    Pl = 133.20;
     
     % D_sac_dur is the sum of expected duration of a saccade in response to the stimulus saccade j, 
     D_sac_dur = 0;

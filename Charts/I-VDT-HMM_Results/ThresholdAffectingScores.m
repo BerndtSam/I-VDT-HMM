@@ -8,10 +8,12 @@
 import_directory = "FrequencyResults/";
 mat_file_extension = ".mat";
 
-noisey_dataset = "s_002";
-clean_dataset = "s_001";
+noisey_dataset = "s_010";
+clean_dataset = "s_007";
+%medium_dataset = "s_001";
 
 high_frequency = "f1000";
+%medium_frequency = "f300";
 low_frequency = "f30";
 
 noisey_low_frequency_filename = import_directory + low_frequency + '-' + noisey_dataset + mat_file_extension;
@@ -48,8 +50,10 @@ MisFix = 'MisFix';
 FQlS = 'FQlS';
 
 optimal_SQnS = 100;
-optimal_FQnS = 83.9;
-optimal_PQnS = 52;
+%optimal_FQnS = 83.9;
+%optimal_PQnS = 52;
+optimal_FQnS = 81.5991;
+optimal_PQnS = 52.04;
 optimal_MisFix = 7.1;
 optimal_FQlS = 0;
 

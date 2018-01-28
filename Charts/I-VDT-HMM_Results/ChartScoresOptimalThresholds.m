@@ -2,7 +2,7 @@ function [  ] = ChartScoresOptimalThresholds( )
 %CHARTSCORESOPTIMALTHRESHOLDS Summary of this function goes here
 %   Detailed explanation goes here
 import_directory = "OptimalResults/";
-mat_file_extension = "-final.mat";
+mat_file_extension = "-final0.mat";
 
 noisey_dataset = "s_010";
 clean_dataset = "s_007";
@@ -13,19 +13,20 @@ clean_filename = import_directory + clean_dataset + mat_file_extension;
 noisey = load(noisey_filename);
 clean = load(clean_filename);
 
-noisey = noisey.final_threshold_scores;
-clean = clean.final_threshold_scores;
-
-noisey_scores = noisey(:,7:length(noisey));
-clean_scores = clean(:,7:length(clean));
+%noisey = noisey.final_threshold_scores;
+%clean = clean.final_threshold_scores;
+noisey = noisey.noisy_results;
+clean = clean.clean_results;
+noisey_scores = noisey(:,4:length(noisey));
+clean_scores = clean(:,4:length(clean));
 
 data = [clean_scores; noisey_scores; ];
 
-O_SQnS = 'Opt. SQnS';
-O_FQnS = 'Opt. FQnS';
-O_PQnS = 'Opt. PQnS';
-O_MisFix = 'Opt. MisFix';
-O_FQlS_PQlS = 'Opt. FQlS/PQlS_P/PQlS_V';
+O_SQnS = 'Ideal SQnS';
+O_FQnS = 'Ideal FQnS';
+O_PQnS = 'Ideal PQnS';
+O_MisFix = 'Ideal MisFix';
+O_FQlS_PQlS = 'Ideal FQlS/PQlS_P/PQlS_V';
 
 SQnS = 'SQnS';
 FQnS = 'FQnS';
@@ -39,14 +40,17 @@ Clean = 'Clean ';
 Noisy = 'Noisy ';
 
 optimal_SQnS = 100;
-optimal_FQnS = 83.9;
-optimal_PQnS = 52;
+%optimal_FQnS = 83.9;
+%optimal_PQnS = 52;
+optimal_FQnS = 81.5991;
+optimal_PQnS = 52.04;
 optimal_MisFix = 7.1;
 optimal_FQlS = 0;
 optimal_PQlS_P = 0;
 optimal_PQlS_V = 0;
 
-x_titles = noisey(:,1);
+%x_titles = noisey(:,1);
+x_titles = [30 100 500 1000];
 x_titles = ["Clean " + string(x_titles); "Noisy " + string(x_titles)];
 
 figure;
@@ -62,6 +66,7 @@ reffqns.Color = 'b';
 refpqns.Color = 'c';
 refmisfix.Color = 'g';
 reffqls.Color = 'k';
+ylim([0 150]);
 
 score_title = "I-VDT-HMM Optimal Threshold Results per Frequency";
 y_label = "Behavioral Scores";

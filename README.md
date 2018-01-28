@@ -20,6 +20,8 @@ Run_Classifier_Ideal_Thresholds(hObject, InputFile, classifier_index, sample_rat
 An example is as follows:
 classificator_run1_5('Run_Classifier_Ideal_Thresholds', 0, '/Users/SamBerndt/Desktop/Class/Research/I-VDT-HMM/ternary_classifier/classificator_1.5/input/s_007.txt', 3, [30 100 1000], [70 0.67 150])
 
+To calculate ideal scores, run:
+classificator_run1_5('CalculateIdealScores', 0, '/Users/SamBerndt/Desktop/Class/Research/I-VDT-HMM/ternary_classifier/classificator_1.5/input/s_007.txt', 3)
 
 I-BDT:
 
