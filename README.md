@@ -2,6 +2,8 @@
 Ternary eye movement classification based off of the I-VDT algorithm, but enhanced using the Viterbi algorithm to determine the highest probabilistic classification after both the velocity and dispersion threshold algorithms
 
 I-VDT-HMM:
+To run on a particular set of data, open the I-VDT-HMM directory, open classificator_run1_5.fig in MATLAB. Input the entire file path into the Input File settings bar. An example of such can be found below. After inputting the filepath, select "Use User Model for classification", and then select the classify button.
+/Users/SamBerndt/Desktop/Class/Research/I-VDT-HMM/I-VDT-HMM/ternary_classification/classificator_1.5/input/s_007.txt
 
 To run the parameter estimation script, where the file will test a range of saccade velocity thresholds, dispersion and duration thresholds, as well as subsample the frequencies to save the scores for each. The s_007.txt at the end of the 3rd parameter can be replaced by any of the 11 input files.:
 classificator_run1_5('Run_Thresholding_Classifier', 0, '/Users/SamBerndt/Desktop/Class/Research/I-VDT-HMM/ternary_classifier/classificator_1.5/input/s_007.txt', 3, 30)
